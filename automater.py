@@ -171,14 +171,22 @@ class simulationSearcher(object):
                     f.write('module load {}\n'.format(module))
                 coreCount = 0
                 print(breaks, i)
+                j = 0
                 for cmd in slurmcmds[breaks[i]:breaks[i+1]]:
-                    f.write(cmd['slurmString'])
-                    coreCount+=cmd['cores']
-                    if coreCount < totalCores:
+                    if j==0:
+                        f.write(cmd['slurmString'])
+                    elif coreCount + cmd['cores'] <= totalCores:
                         f.write(' &\n')
+                        f.write(cmd['slurmString'])
                     else:
                         coreCount = 0
                         f.write('\n'+ 'wait\n')
+                        f.write(cmd['slurmString'])
+
+
+                    coreCount+=cmd['cores']
+                    j +=1
+                f.write('\n'+ 'wait\n')
             os.system(f'sbatch submit{i}')
         
     def writeInputFile(self,cfgDict, outfile='test.txt'):
