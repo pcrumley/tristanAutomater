@@ -38,7 +38,7 @@ box:
   units: 'omega_pi' # you can use 'omega_pe', 'omega_pi', or 'cells'
 ```
 
-Say instead you want to see what is more valuable increaing ppc0, c_omp, or filtering. You want to run all permutations of following grid of runs c_omp = 6, 8, 16, ntimes = 8, 32, 64 & ppc0 = 8, 16, 32. Also you don't want to submit 27 slurm scripts, instead you want to submit 2 slurm files with 5 nodes each. Edit the `config.yaml` file  to look something like
+Say instead you want to see what is more important,  increaing ppc0, c_omp, or filtering. You want to run all permutations of following: c_omp = 6, 8, 16, ntimes = 8, 32, 64 & ppc0 = 8, 16, 32. So there are 27 runs. You don't want to submit 27 slurm scripts, instead you want to submit 2 slurm scripts with 5 nodes each. Edit the `config.yaml` file  to look something like
 
 ```
 BASE_INPUT_FILE: '/PATH/TO/YOUR/input' # we take these values as the base                                                              
