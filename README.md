@@ -72,8 +72,8 @@ box:
   z: [] # must be a list                                                                                                                                           
   units: 'omega_pe' # you can use 'omega_pe', 'omega_pi', or 'cells'
 ```
+Note, if you're developing tristan and you want to try different executables, you can change the yaml file to have `exec: ['path/2/tristan1', 'path/to/tristan2']`
+Once you are happy with your config file, login to perseus, `module load anaconda3` and `python automater.py`. Check the `ROOT_DIRECTORY` for your runs.
 
-Once you are happy with your config file, login to perseus, `module load anaconda3` and `python automater.py`. Check the `ROOT_DIRECTORY` for your runs. 
-
-## KNOWN ISSUES.
-I am getting the job crashing if you try to put more than one job on a node. so make sure `sizex*sizey` is a multiple of `coresPerNode`. This shouldn't be strictly necessary, I will try to debug in future.
+## Known issues
+Will not work for 3D runs (will work for 2D runs, 1D runs not tested but may work.)
