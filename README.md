@@ -2,7 +2,7 @@
 A simple way batch run tristan-mp simulations with a slurm workload manager system
 
 The code is cofigured through the config.yaml file. After that run `python automater.py`
-and it will submit the jobs for you.
+and it will submit the jobs for you. You can change any parameter in the input file by putting it in a list in paramOpts.
 
 ## Example uses
 
