@@ -27,8 +27,8 @@ submitOpts:
   exec: ['/PATH/TO/tristan-mp2d']                                                                                                          
                                                                                                                                                                    
 outputOpts:                                                                                                                                                        
-  interval: 45 # save every omega_pi^-1                                                                                                                                                     
-  last: 10000 # job will end after 10k omega_pi^-1                                                                                                                                                      
+  interval: 45 # save every 45 omega_pi^-1                                                                                                                                                     
+  last: 10000 # run will end after 10k omega_pi^-1                                                                                                                                                      
   units: 'omega_pi' # you can use 'omega_pe', 'omega_pi', or 'laps'                                                                                                
                                                                                                                                                                    
 box:                                                                                                                                                               
@@ -76,4 +76,4 @@ Note, if you're developing tristan and you want to try different executables, yo
 Once you are happy with your config file, login to perseus, `module load anaconda3` and `python automater.py`. Check the `ROOT_DIRECTORY` for your runs.
 
 ## Known issues
-Will not work for 3D runs (will work for 2D runs, 1D runs not tested but may work.)
+Will not work for 3D runs (will work for 2D runs, 1D runs not tested but should work.)
