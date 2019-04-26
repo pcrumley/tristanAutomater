@@ -15,7 +15,10 @@ was created with the paramOpts will be run once with a width of 50 and once with
 a width of 100.)
 
 The code is cofigured through the config.yaml file. After that run `./automater.py`
-and it will submit the jobs for you. 
+and it will submit the jobs for you.
+
+`./automater.py -h` prints a list of the command line arguments available to change
+things like where it looks for the `config.yaml` file or where it saves the simulations.
 
 ## Example uses
 
@@ -86,8 +89,10 @@ box:
   z: [] # must be a list                                                                                                                                           
   units: 'omega_pe' # you can use 'omega_pe', 'omega_pi', or 'cells'
 ```
-Note, if you're developing tristan and you want to try different executables, you can change the yaml file to have `exec: ['path/2/tristan1', 'path/to/tristan2']`
+Note, if you're developing tristan and you want to try different executables, you can change the yaml file to have `exec: ['path/2/tristan1', 'path/to/tristan2']` or you can also change the box to have multiple sizes e.g. `x: [50, 100]`.
 Once you are happy with your config file, login to perseus, `module load anaconda3` and `python automater.py`. Check the `ROOT_DIRECTORY` for your runs.
+
+
 
 ## Known issues
 Will not work for 3D runs (will work for 2D runs, 1D runs not tested but should work.)
