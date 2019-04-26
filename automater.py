@@ -156,7 +156,7 @@ class simulationSearcher(object):
                 os.system(f'cp {elm} {dirname}')
                 slurmcmds.append({'cores': coresNeeded, 'slurmString': f"cd {dirname} && srun -n {coresNeeded} {elm} -i input -o {outdir} > {outfile}"})
         #print(len(slurmcmds), self._submitOpts['jobs'])
-        print(range(0,len(slurmcmds), len(slurmcmds)//self._submitOpts['jobs']))
+        #print(range(0,len(slurmcmds), len(slurmcmds)//self._submitOpts['jobs']))
         breaks = list(range(0,len(slurmcmds)+1, len(slurmcmds)//self._submitOpts['jobs']))
         breaks[-1] = len(slurmcmds)
         totalCores = self._submitOpts['coresPerNode']*self._submitOpts['nodesPerJob']
@@ -200,13 +200,40 @@ class simulationSearcher(object):
     def setRootDir(self, dirname):
         self._rootDir = dirname
 if __name__ == '__main__':
-    with open("config.yaml", 'r') as stream:
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--config", type=str,
+                    help="Pass a config.yaml file to the automater." +
+                        " If -c is not used, automater uses ./config.yaml")
+    parser.add_argument("-i", "--input", type=str,
+                        help="Specify the input file on the command line," +
+                        " overriding the value in config.yaml")
+    parser.add_argument("-o", "--output", type=str,
+                        help="Specify the root directory of the output directories on the command line," +
+                        " overriding the value in config.yaml")
+    parser.add_argument("-x", "--exec", nargs= '+', type=str,
+                        help="Specify the tristan executable to use" +
+                        " overriding the value in config.yaml." +
+                        " Can pass a single value or multiple values."
+                        " E.g., ./automater.py -x ./tristan-mp2d or"
+                        " ./automater.py -x ./tristanOld ./tristanNew.")
+
+    args = parser.parse_args()
+
+    yamlFile = 'config.yaml' if args.config is None else args.config
+    with open(yamlFile, 'r') as stream:
         try:
             config = yaml.safe_load(stream)
-            print(config)
+            #print(config)
         except yaml.YAMLError as exc:
             print(exc)
 
+    if args.output is not None:
+        config['ROOT_DIRECTORY'] = args.output
+    if args.input is not None:
+        config['BASE_INPUT_FILE'] = args.input
+    if args.exec is not None:
+        config['submitOpts']['exec'] = args.exec
     runBuilder = simulationSearcher()
     runBuilder.setRootDir(config['ROOT_DIRECTORY'])
     runBuilder.loadInputTemplate(config['BASE_INPUT_FILE'])
