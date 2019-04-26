@@ -1,13 +1,27 @@
 # tristanAutomator
-A simple way batch run tristan-mp simulations with a slurm workload manager system
+A simple way batch run tristan-mp simulations with a slurm workload manager system.
 
-The code is cofigured through the config.yaml file. After that run `python automater.py`
-and it will submit the jobs for you. You can change any parameter in the input file by putting it in a list in paramOpts.
+The basic idea is that this script allows you to pass lists of any parameter found 
+in a tristan-MP input-file. The script then creates runs that is every permutation 
+of the lists you have supplied. Parameters not passed in paramOpts are taken from
+the `BASE_INPUT` file. The only parameters that are special are `mx0`, `my0`, and 
+`mz0`. These are instead controlled with a `box` dictionary. `mx0` is set by 
+combining the list passed in `x` key, and the units. This allows the boxt to have
+the same physical size while changing resolution (if physical units are chosen). 
+It's the users responsibility to make sure `my0` is divisible by `sizey` for all 
+the created boxes. Like every list in the config file (except for `modules`), the 
+lists in the `box` key are permuted over. (e.g. `y: [50, 100]` means every run that 
+was created with the paramOpts will be run once with a width of 50 and once with 
+a width of 100.)
+
+The code is cofigured through the config.yaml file. After that run `./automater.py`
+and it will submit the jobs for you. 
 
 ## Example uses
 
 Say you want to run the same job with mi/me = 1, 32, 124. You want all the boxes to be 50 x 50 
-c/omega_pi, and you want each to be it's own slurm script taking 4 nodes. Edit the `config.yaml` file  to look something like
+c/omega_pi, and you want each to be it's own slurm script taking 4 nodes. Edit the 
+`config.yaml` file  to look something like
 
 ```
 BASE_INPUT_FILE: '/PATH/TO/YOUR/input' # we take these values as the base                                                              
@@ -21,7 +35,7 @@ submitOpts:
   nodesPerJob: 4                                                                                                                                                   
   coresPerNode: 28                                                                                                                                                 
   totalTime: '1:00:00'                                                                                                                                             
-  # modules must be a list                                                                                                                                         
+  # modules must be a list. Modules is the only list not permutated.                                                                                                                                        
   modules: ['intel', 'intel-mpi', 'hdf5/intel-16.0/intel-mpi/1.8.16']                                                                                              
   # exec must be a list                                                                                                                                            
   exec: ['/PATH/TO/tristan-mp2d']                                                                                                          
@@ -77,3 +91,5 @@ Once you are happy with your config file, login to perseus, `module load anacond
 
 ## Known issues
 Will not work for 3D runs (will work for 2D runs, 1D runs not tested but should work.)
+
+Currently assume every job has roughly the same computational cost when doing load balancing accross slurm scripts. May want to consider a mode where more cells or particles means that more cores are dedicated to the run.
