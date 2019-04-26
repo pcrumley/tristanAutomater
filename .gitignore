@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# SLURM CREATED STUFF
+submit*
+slurm*
+
 # C extensions
 *.so
 
