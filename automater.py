@@ -1,5 +1,6 @@
+#!/usr/bin/env python3
 import sys, os, re, itertools
-import numpy as np
+from math import sqrt
 import yaml
 #import unittest
 class simulationSearcher(object):
@@ -67,8 +68,8 @@ class simulationSearcher(object):
 
             elif box['units'] == 'omega_pi':
                 tmpConst = int(pt[self.__cfgMapper['c_omp']]['c_omp'])
-                tmpConst *= np.sqrt(float(pt[self.__cfgMapper['mi']]['mi']))
-                tmpConst /= np.sqrt(float(pt[self.__cfgMapper['me']]['me']))
+                tmpConst *= sqrt(float(pt[self.__cfgMapper['mi']]['mi']))
+                tmpConst /= sqrt(float(pt[self.__cfgMapper['me']]['me']))
 
             converter = lambda d: int(d*tmpConst)
             xiter = map(converter, box['x'])
@@ -122,8 +123,8 @@ class simulationSearcher(object):
                 #print(float(pt[self.__cfgMapper['c']]['c']))
             elif units == 'omega_pi':
                 tmpConst = float(pt[self.__cfgMapper['c_omp']]['c_omp'])
-                tmpConst *= float(np.sqrt(pt[self.__cfgMapper['mi']]['mi']))
-                tmpConst /= float(np.sqrt(pt[self.__cfgMapper['me']]['me']))
+                tmpConst *= sqrt(float(pt[self.__cfgMapper['mi']]['mi']))
+                tmpConst /= sqrt(float(pt[self.__cfgMapper['me']]['me']))
                 tmpConst /= pt[self.__cfgMapper['c']]['c']
             for head, key, val in zip(cfgHeaders, cfgKeys, vals):
                 if key in ['last', 'interval', 'dlaplec', 'teststartlec', 'testendlec', 'dlapion', 'teststartion', 'testendion']:
