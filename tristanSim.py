@@ -143,21 +143,10 @@ class Electrons(Particles):
 
 
 class TristanSim(object):
-    '''A object that provides an API to access data from Tristan-mp
-    particle-in-cell simulations. The specifics of your simulation should be
-    defined as a class that extends this object.'''
-    #params = ['comp','bphi','btheta',]
-    def __init__(self, dirpath=None, n=1, xtra_stride = 1):
+    def __init__(self, dirpath=None, xtra_stride = 1):
         self.dir = str(dirpath)
         self.xtra_stride = xtra_stride
-
-        self.n=str(n).zfill(3)
-        ### add the ions
-        self.ions = Ions(self, name='ions') # NOTE: the name must match the attritube name
-        # e.g. self.ions ===> name ='ions'
-        ### add the electrons
-        self.lecs = Electrons(self, name='lecs')
-
+        self.output = [OutputPoint(self.dir, n=x, xtra_stride = self.xtra_stride) for x in self.get_file_nums()]
 
     def get_file_nums(self):
         try:
@@ -192,15 +181,24 @@ class TristanSim(object):
             return list(allFour)
         except OSError:
             return []
-    def get_avail_prtls(self):
-        prtl_obj = {}
-        prtl_obj['prtls'] = {}
-        for prtl in Particles.get_prtls():
-            prtl_obj['prtls'][prtl]= {'quantities': getattr(getattr(self,prtl),'quantities'),
-                             'axisLabels': getattr(getattr(self,prtl),'axislabels'),
-                             'oneDLabels': getattr(getattr(self,prtl),'oneDlabels'),
-                             'histLabel': getattr(getattr(self,prtl),'histLabel')}
-        return prtl_obj
+    
+class OutputPoint(object):
+    '''A object that provides an API to access data from Tristan-mp
+    particle-in-cell simulations. The specifics of your simulation should be
+    defined as a class that extends this object.'''
+    #params = ['comp','bphi','btheta',]
+    def __init__(self, dirpath=None, n=1, xtra_stride = 1):
+        self.dir = str(dirpath)
+        self.xtra_stride = xtra_stride
+
+        self.n=str(n).zfill(3)
+        ### add the ions
+        self.ions = Ions(self, name='ions') # NOTE: the name must match the attritube name
+        # e.g. self.ions ===> name ='ions'
+        ### add the electrons
+        self.lecs = Electrons(self, name='lecs')
+
+
     def load_param(self, key):
         try:
             with h5py.File(os.path.join(self.dir,'param.'+self.n),'r') as f:
@@ -216,6 +214,7 @@ class TristanSim(object):
         except IOError:
             return np.array([])
 
+    
     @cached_property
     def ex(self):
         return self.load_field_quantities('ex')
@@ -365,3 +364,6 @@ if __name__=='__main__':
     print(mySim.get_file_nums())
     print(mySim.ions.x)
     print(mySim.ex)
+
+
+

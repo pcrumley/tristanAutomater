@@ -6,7 +6,7 @@ ROOT_DIRECTORY: '/scratch/gpfs/pcrumley/batchTristan/'
 
 #You can edit any of the options in the input fine here
 paramOpts: 
-  c_omp: [4,8] 
+  c_omp: [8] 
   ppc0: [4,8,16] 
   ntimes : [8,32,64] 
   sizex: [7]
@@ -23,7 +23,7 @@ submitOpts:
   exec: ['/scratch/gpfs/pcrumley/Automator/tristan-mp2d'] 
 
 outputOpts:
-  interval: 45
+  interval: 25
   last: 226
   units: 'omega_pe' # you can use 'omega_pe', 'omega_pi', or 'laps'
   

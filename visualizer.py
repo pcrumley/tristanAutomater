@@ -14,6 +14,7 @@ with open(yamlFile, 'r') as stream:
 #outdir = config['ROOT_DIRECTORY']
 
 outdir = '../batchTristan'
+
 runs = []
 # runs will be a list that looks like this 
 #[[  run1_t1, run1_t2, run1_t3...],
@@ -27,34 +28,37 @@ runNames = []
 for elm in os.listdir(outdir):
     elm = os.path.join(outdir, elm)
     if os.path.isdir(elm):
-        runNames.append(os.path.split(elm)[-1])
+
         elm = os.path.join(elm,'output')
         if os.path.exists(elm):
-            runs.append([TristanSim(elm, n = x) for x in TristanSim(elm).get_file_nums()])
-
+            runs.append(TristanSim(elm))
+            runNames.append(os.path.split(os.path.split(elm)[0])[-1])
+print(runs)
 # TristanSim is an object that exposes an API to access tristan.
 # The cool thing is nothing is loaded until it is accessed for first time, then it is cached.
 
-# fields are accessed via sim.ex [ex, ey, ez, bx, by, bz, dens...]
+# fields are accessed via sim.output[n].ex [ex, ey, ez, bx, by, bz, dens...]
 # particle values are accessed like sim.ions.x or sim.lecs.y etc..
 
 # Here's an example of plotting the 5th time step of ex of each run
-# in a 6 x 3 grid. Because of how I set up the searcher, all are at the
+# in a 3 x 3 grid. Because of how I set up the searcher, all are at the
 # same physical time.
 
 fig = plt.figure()
-axes = fig.subplots(6,3).flatten()
+axes = fig.subplots(3,3).flatten()
 #print(axes)
 j = 0
 for run, name in zip(runs, runNames):
     ax = axes[j]
-    istep = run[3].istep
-    comp = run[3].comp
-    ex = run[3].ex[0,:,:]
+    istep = run.output[4].istep
+    comp = run.output[4].comp
+    ex = run.output[4].ex[0,:,:]
     ax.imshow(ex,extent=(0, ex.shape[1]*istep/comp, 0, ex.shape[0]*istep/comp), origin = 'lower')
     ax.set_title(name)
     #plt.colorbar()
     j += 1
+    if j == 18:
+        break
 #plt.savefig('test.png')
 plt.show()
 
@@ -75,8 +79,14 @@ color = ['b', 'r', 'g', 'y']
 
 fig = plt.figure()
 for run in runs:
-    plt.plot([t.time for t in run], [np.average(t.lecs.KE) for t in run],
-             c = color[ppc_val.index(run[0].ppc0)],
-             linestyle = ls[ntimes_val.index(run[0].ntimes)],
-             marker = ms[c_omp_val.index(run[0].comp)], markersize = 10)
+    plt.plot([t.time for t in run.output], [np.average(t.lecs.KE[t.lecs.index>0]) for t in run.output],
+             c = color[ppc_val.index(run.output[0].ppc0)],
+             linestyle = ls[ntimes_val.index(run.output[0].ntimes)],
+             marker = ms[c_omp_val.index(run.output[0].comp)], markersize = 10)
 plt.show()
+
+###
+#
+# EXAMPLE OF TRACKING PARTICLES
+#
+###
