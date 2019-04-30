@@ -63,13 +63,16 @@ plt.show()
 ## as function of time for each run
 
 # I know I changed c_omp, ntimes and ppc. get from YAML
-ms = ['.', 'x', '4', '8']
-ls = ['-', '--', ':', '-.']
-color = ['b', 'r', 'g', 'y']
+
 c_omp_val = config['paramOpts']['c_omp']
 ppc_val = config['paramOpts']['ppc0']
 ntimes_val = config['paramOpts']['ntimes']
-    
+
+# Some arrays that change what the lines will look like
+ms = ['.', 'x', '4', '8']
+ls = ['-', '--', ':', '-.']
+color = ['b', 'r', 'g', 'y']
+
 fig = plt.figure()
 for run in runs:
     plt.plot([t.time for t in run], [np.average(t.lecs.KE) for t in run],
