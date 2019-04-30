@@ -92,6 +92,9 @@ box:
 Note, if you're developing tristan and you want to try different executables, you can change the yaml file to have `exec: ['path/2/tristan1', 'path/to/tristan2']` or you can also change the box to have multiple sizes e.g. `x: [50, 100]`.
 Once you are happy with your config file, login to perseus, `module load anaconda3` and `python automater.py`. Check the `ROOT_DIRECTORY` for your runs.
 
+## Visualization
+
+I added some routines and an api that may help you get started with analyzing all these runs with python. See visualizer.py.
 
 
 ## Known issues
