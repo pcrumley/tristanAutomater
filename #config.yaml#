@@ -1,0 +1,34 @@
+### THIS CONFIG FILE USES YAML SYNTAX
+### see yaml.org
+
+BASE_INPUT_FILE: '/scratch/gpfs/pcrumley/Automator/input.stopping' # we take these values as the base
+ROOT_DIRECTORY: '/scratch/gpfs/pcrumley/batchTristan/'
+
+#You can edit any of the options in the input fine here
+paramOpts: 
+  c_omp: [4,8] 
+  ppc0: [4,8,16] 
+  ntimes : [8,32,64] 
+  sizex: [7]
+  sizey: [2] 
+submitOpts:
+  email: 'patrick.crumley@gmail.com'
+  jobs: 2
+  nodesPerJob: 2
+  coresPerNode: 28
+  totalTime: '1:00:00'
+  # modules must be a list
+  modules: ['intel', 'intel-mpi', 'hdf5/intel-16.0/intel-mpi/1.8.16']
+  # exec must be a list
+  exec: ['/scratch/gpfs/pcrumley/Automator/tristan-mp2d'] 
+
+outputOpts:
+  interval: 45
+  last: 226
+  units: 'omega_pe' # you can use 'omega_pe', 'omega_pi', or 'laps'
+  
+box:
+  x: [40] # must be a list 
+  y: [40] # must be a list
+  z: [] # must be a list
+  units: 'omega_pe' # you can use 'omega_pe', 'omega_pi', or 'cells'
