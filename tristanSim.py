@@ -1,154 +1,27 @@
-import re, os
+import re, os, h5py
 import numpy as np
-import h5py
-
-class cached_property(object):
-    """
-    A property that is only computed once per instance and then replaces itself
-    with an ordinary attribute. Deleting the attribute resets the property.
-    """
-    def __init__(self, func):
-        self.__doc__ = getattr(func, '__doc__')
-        self.func = func
-
-    def __get__(self, obj, cls):
-        if obj is None:
-            return self
-        value = obj.__dict__[self.func.__name__] = self.func(obj)
-        return value
-
-
-class Particles(object):
-    '''A base object that holds the info of one type of particle in the simulation
-    '''
-    __prtl_types = []
-    def __init__(self, sim, name):
-        self.sim = sim
-        self.name = name
-        self.__prtl_types.append(name)
-        self.quantities = []
-    def load_saved_quantities(self, key):
-        try:
-            with h5py.File(os.path.join(self.sim.dir,'prtl.tot.'+self.sim.n),'r') as f:
-                return f[key][::self.sim.xtra_stride]
-        except IOError:
-            return np.array([])
-
-
-    @classmethod
-    def get_prtls(cls):
-        return cls.__prtl_types
-
-
-class Ions(Particles):
-    '''The ion subclass'''
-    def __init__(self, sim, name='ions'):
-        Particles.__init__(self, sim, name)
-    @cached_property
-    def x(self):
-        return self.load_saved_quantities('xi')/self.sim.comp
-
-    @cached_property
-    def y(self):
-        return self.load_saved_quantities('yi')/self.sim.comp
-
-    @cached_property
-    def z(self):
-        return self.load_saved_quantities('zi')/self.sim.comp
-
-    @cached_property
-    def px(self):
-        return self.load_saved_quantities('ui')
-
-    @cached_property
-    def py(self):
-        return self.load_saved_quantities('vi')
-
-    @cached_property
-    def pz(self):
-        return self.load_saved_quantities('wi')
-
-    @cached_property
-    def charge(self):
-        return self.load_saved_quantities('chi')
-
-    @cached_property
-    def gamma(self):
-        # an example of a calculated quantity
-        return np.sqrt(self.px**2+self.py**2+self.pz**2+1)
-
-    @cached_property
-    def KE(self):
-        # an example of a calculated quantity could use
-        return (self.gamma-1)
-
-
-    @cached_property
-    def proc(self):
-        return self.load_saved_quantities('proci')
-
-    @cached_property
-    def index(self):
-        return self.load_saved_quantities('indi')
-
-class Electrons(Particles):
-    '''The electron subclass'''
-    def __init__(self, sim, name='electrons'):
-        Particles.__init__(self, sim, name)
-    @cached_property
-    def x(self):
-        return self.load_saved_quantities('xe')/self.sim.comp
-
-    @cached_property
-    def y(self):
-        return self.load_saved_quantities('ye')/self.sim.comp
-
-    @cached_property
-    def z(self):
-        return self.load_saved_quantities('ze')/self.sim.comp
-
-    @cached_property
-    def px(self):
-        return self.load_saved_quantities('ue')
-
-    @cached_property
-    def py(self):
-        return self.load_saved_quantities('ve')
-
-    @cached_property
-    def pz(self):
-        return self.load_saved_quantities('we')
-
-    @cached_property
-    def charge(self):
-        return self.load_saved_quantities('che')
-
-    @cached_property
-    def gamma(self):
-        # an example of a calculated quantity could use
-        return np.sqrt(self.px**2+self.py**2+self.pz**2+1)
-
-    @cached_property
-    def KE(self):
-        # an example of a calculated quantity could use
-        return (self.gamma-1)*self.sim.me/self.sim.mi
-
-    @cached_property
-    def proc(self):
-        return self.load_saved_quantities('proce')
-
-    @cached_property
-    def index(self):
-        return self.load_saved_quantities('inde')
-
+from particles import Ions, Electrons, cachedProperty
+from tracked_particles import TrackedDatabase
 
 class TristanSim(object):
-    def __init__(self, dirpath=None, xtra_stride = 1):
+    def __init__(self, dirpath=None, xtraStride = 1):
+        self.__allTrackKeys = ['t', 'x', 'y', 'u', 'v', 'w', 'gamma', 'bx', 'by', 'bz', 'ex', 'ey', 'ez']
+        self.trackKeys = self.__allTrackKeys
         self.dir = str(dirpath)
-        self.xtra_stride = xtra_stride
-        self.output = [OutputPoint(self.dir, n=x, xtra_stride = self.xtra_stride) for x in self.get_file_nums()]
+        self.xtraStride = xtraStride
+        self.output = [OutputPoint(self.dir, n=x, xtraStride = self.xtraStride) for x in self.getFileNums()]
+    @property
+    def trackKeys(self):
+        return self.__trackKeys
 
-    def get_file_nums(self):
+    @trackKeys.setter
+    def trackKeys(self, args):
+        self.__trackKeys = []
+        for arg in args:
+            if arg in self.__allTrackKeys:
+                self.__trackKeys.append(arg)
+
+    def getFileNums(self):
         try:
             # create a bunch of regular expressions used to search for files
             f_re = re.compile('flds.tot.*')
@@ -157,39 +30,47 @@ class TristanSim(object):
             param_re = re.compile('param.*')
 
             # Create a dictionary of all the paths to the files
-            self.PathDict = {'Flds': [], 'Prtl': [], 'Param': [], 'Spect': []}
-            self.PathDict['Flds']= [item for item in filter(f_re.match, os.listdir(self.dir))]
-            self.PathDict['Prtl']= [item for item in filter(prtl_re.match, os.listdir(self.dir))]
-            self.PathDict['Spect']= [item for item in filter(s_re.match, os.listdir(self.dir))]
-            self.PathDict['Param']= [item for item in filter(param_re.match, os.listdir(self.dir))]
+            self.pathDict = {'flds': [], 'prtl': [], 'param': [], 'spect': []}
+            self.pathDict['flds']= [item for item in filter(f_re.match, os.listdir(self.dir))]
+            self.pathDict['prtl']= [item for item in filter(prtl_re.match, os.listdir(self.dir))]
+            self.pathDict['spect']= [item for item in filter(s_re.match, os.listdir(self.dir))]
+            self.pathDict['param']= [item for item in filter(param_re.match, os.listdir(self.dir))]
 
             ### iterate through the Paths and just get the .nnn number
-            for key in self.PathDict.keys():
-                for i in range(len(self.PathDict[key])):
+            for key in self.pathDict.keys():
+                for i in range(len(self.pathDict[key])):
                     try:
-                        self.PathDict[key][i] = int(self.PathDict[key][i].split('.')[-1])
+                        self.pathDict[key][i] = int(self.pathDict[key][i].split('.')[-1])
                     except ValueError:
-                        self.PathDict[key].pop(i)
+                        self.pathDict[key].pop(i)
                     except IndexError:
                         pass
 
             ### GET THE NUMBERS THAT HAVE ALL 4 FILES:
-            allFour = set(self.PathDict['Param'])
-            for key in self.PathDict.keys():
-                allFour &= set(self.PathDict[key])
+            allFour = set(self.pathDict['param'])
+            for key in self.pathDict.keys():
+                allFour &= set(self.pathDict[key])
             allFour = sorted(allFour)
             return list(allFour)
         except OSError:
             return []
+
+    @cachedProperty
+    def trackedLecs(self):
+        return TrackedDatabase(self, 'lecs', keys = self.trackKeys)
+    @cachedProperty
+    def trackedIons(self):
+        return TrackedDatabase(self, 'ions', keys = self.trackKeys)
+
     
 class OutputPoint(object):
     '''A object that provides an API to access data from Tristan-mp
     particle-in-cell simulations. The specifics of your simulation should be
     defined as a class that extends this object.'''
     #params = ['comp','bphi','btheta',]
-    def __init__(self, dirpath=None, n=1, xtra_stride = 1):
+    def __init__(self, dirpath=None, n=1, xtraStride = 1):
         self.dir = str(dirpath)
-        self.xtra_stride = xtra_stride
+        self.xtraStride = xtraStride
 
         self.n=str(n).zfill(3)
         ### add the ions
@@ -199,7 +80,7 @@ class OutputPoint(object):
         self.lecs = Electrons(self, name='lecs')
 
 
-    def load_param(self, key):
+    def loadParam(self, key):
         try:
             with h5py.File(os.path.join(self.dir,'param.'+self.n),'r') as f:
                 return f[key][0]
@@ -207,7 +88,7 @@ class OutputPoint(object):
             return np.nan
 
     # Fields
-    def load_field_quantities(self, key):
+    def loadFieldQuantity(self, key):
         try:
             with h5py.File(os.path.join(self.dir,'flds.tot.'+self.n),'r') as f:
                 return f[key][:,:,:]
@@ -215,87 +96,87 @@ class OutputPoint(object):
             return np.array([])
 
     
-    @cached_property
+    @cachedProperty
     def ex(self):
-        return self.load_field_quantities('ex')
+        return self.loadFieldQuantity('ex')
 
-    @cached_property
+    @cachedProperty
     def ey(self):
-        return self.load_field_quantities('ey')
+        return self.loadFieldQuantity('ey')
 
-    @cached_property
+    @cachedProperty
     def ez(self):
-        return self.load_field_quantities('ez')
+        return self.loadFieldQuantity('ez')
 
-    @cached_property
+    @cachedProperty
     def bx(self):
-        return self.load_field_quantities('bx')
+        return self.loadFieldQuantity('bx')
 
-    @cached_property
+    @cachedProperty
     def by(self):
-        return self.load_field_quantities('by')
+        return self.loadFieldQuantity('by')
 
-    @cached_property
+    @cachedProperty
     def bz(self):
-        return self.load_field_quantities('bz')
-    @cached_property
+        return self.loadFieldQuantity('bz')
+    @cachedProperty
     def jx(self):
-        return self.load_field_quantities('jx')
+        return self.loadFieldQuantity('jx')
 
-    @cached_property
+    @cachedProperty
     def jy(self):
-        return self.load_field_quantities('jy')
+        return self.loadFieldQuantity('jy')
 
-    @cached_property
+    @cachedProperty
     def jz(self):
-        return self.load_field_quantities('jz')
+        return self.loadFieldQuantity('jz')
 
-    @cached_property
+    @cachedProperty
     def dens(self):
-        return self.load_field_quantities('dens')
+        return self.loadFieldQuantity('dens')
 
     # SOME SIMULATION WIDE PARAMETERS
-    @cached_property
+    @cachedProperty
     def comp(self):
-        return self.load_param('c_omp')
+        return self.loadParam('c_omp')
 
-    @cached_property
+    @cachedProperty
     def bphi(self):
-        return self.load_param('bphi')
+        return self.loadParam('bphi')
 
-    @cached_property
+    @cachedProperty
     def btheta(self):
-        return self.load_param('btheta')
+        return self.loadParam('btheta')
 
-    @cached_property
+    @cachedProperty
     def sigma(self):
-        return self.load_param('sigma')
+        return self.loadParam('sigma')
 
-    @cached_property
+    @cachedProperty
     def c(self):
-        return self.load_param('c')
+        return self.loadParam('c')
 
-    @cached_property
+    @cachedProperty
     def delgam(self):
-        return self.load_param('delgam')
+        return self.loadParam('delgam')
 
-    @cached_property
+    @cachedProperty
     def gamma0(self):
-        return self.load_param('gamma0')
+        return self.loadParam('gamma0')
 
-    @cached_property
+    @cachedProperty
     def istep(self):
-        return self.load_param('istep')
+        return self.loadParam('istep')
 
-    @cached_property
+    @cachedProperty
     def me(self):
-        return self.load_param('me')
+        return self.loadParam('me')
 
-    @cached_property
+    @cachedProperty
     def mi(self):
-        return self.load_param('mi')
+        return self.loadParam('mi')
 
-    @cached_property
+    @cachedProperty
     def mx(self):
         try:
             with h5py.File(os.path.join(self.dir,'param.'+self.n),'r') as f:
@@ -303,11 +184,11 @@ class OutputPoint(object):
         except IOError:
             return np.array([])
 
-    @cached_property
+    @cachedProperty
     def mx0(self):
-        return self.load_param('mx0')
+        return self.loadParam('mx0')
 
-    @cached_property
+    @cachedProperty
     def my(self):
         try:
             with h5py.File(os.path.join(self.dir,'param.'+self.n),'r') as f:
@@ -315,55 +196,74 @@ class OutputPoint(object):
         except IOError:
             return np.array([])
 
-    @cached_property
+    @cachedProperty
     def my0(self):
-        return self.load_param('my0')
+        return self.loadParam('my0')
 
-    @cached_property
+    @cachedProperty
     def mz0(self):
-        return self.load_param('mz0')
+        return self.loadParam('mz0')
 
-    @cached_property
+    @cachedProperty
     def ntimes(self):
-        return self.load_param('ntimes')
+        return self.loadParam('ntimes')
 
-    @cached_property
+    @cachedProperty
     def ppc0(self):
-        return self.load_param('ppc0')
+        return self.loadParam('ppc0')
 
-    @cached_property
+    @cachedProperty
     def qi(self):
-        return self.load_param('qi')
+        return self.loadParam('qi')
 
-    @cached_property
+    @cachedProperty
     def sizex(self):
-        return self.load_param('sizex')
-    @cached_property
+        return self.loadParam('sizex')
+    @cachedProperty
     def sizey(self):
-        return self.load_param('sizey')
+        return self.loadParam('sizey')
 
-    @cached_property
+    @cachedProperty
     def stride(self):
-        return self.load_param('stride')
+        return self.loadParam('stride')
 
-    @cached_property
+    @cachedProperty
     def time(self):
-        return self.load_param('time')
+        return self.loadParam('time')
 
-    @cached_property
+    @cachedProperty
     def walloc(self):
-        return self.load_param('walloc')
+        return self.loadParam('walloc')
 
-    @cached_property
+    @cachedProperty
     def xinject2(self):
-        return self.load_param('xinject2')
+        return self.loadParam('xinject2')
 
 
 if __name__=='__main__':
-    mySim = TristanSim('../batchTristan/c_omp_4_ppc0_4_ntimes_32_mx0_160_my0_160tristan-mp2d/output/')
-    print(mySim.get_file_nums())
-    print(mySim.ions.x)
-    print(mySim.ex)
+    import time
+    import matplotlib.pyplot as plt
+    mySim = TristanSim('../batchTristan/c_omp_8_ppc0_16_ntimes_32_mx0_320_my0_320tristan-mp2d/output')
+    #mySim.build_tracked_prtls('lecs')
+    #mySim.build_tracked_prtls('ions')
+    print(mySim.output[0].ions.x)
+    print(mySim.output[0].ex)
+    tic = time.time()
+    print(mySim.trackedLecs.tags[0])
+    #func = lambda p: np.max(p.gamma)
+    #print(func(mySim.trackedLecs[0]))
+    mySim.trackedLecs.sort(lambda p: p.gamma[-1])
 
+    for prtl in mySim.trackedLecs[0:-10]:
+        plt.plot(prtl.t, prtl.gamma, 'lightgray')
+    for prtl in mySim.trackedLecs[-10:]:
+        plt.plot(prtl.t, prtl.gamma, 'k')
 
+    plt.show()
+    toc = time.time()
+    print(toc-tic)
+    tic = time.time()
+    print(mySim.trackedLecs.tags[0])
+    toc = time.time()
+    print(toc-tic)
 
