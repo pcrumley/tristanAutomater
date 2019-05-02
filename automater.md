@@ -1,4 +1,4 @@
-# tristanAutomater
+# automater.py
 A simple way batch run tristan-mp simulations with a slurm workload manager system.
 
 The basic idea is that this script allows you to pass lists of any parameter found 
@@ -55,7 +55,11 @@ box:
   units: 'omega_pi' # you can use 'omega_pe', 'omega_pi', or 'cells'
 ```
 
-Say instead you want to see what is more important,  increaing ppc0, c_omp, or filtering. You want to run all permutations of following: c_omp = 6, 8, 16, ntimes = 8, 32, 64 & ppc0 = 8, 16, 32. So there are 27 runs. You don't want to submit 27 slurm scripts, instead you want to submit 2 slurm scripts with 5 nodes each. Edit the `config.yaml` file  to look something like
+Say instead you want to see what is more important,  increaing ppc0, c_omp, 
+or filtering. You want to run all permutations of following: c_omp = 6, 8, 16, 
+ntimes = 8, 32, 64 & ppc0 = 8, 16, 32. So there are 27 runs. 
+You don't want to submit 27 slurm scripts, instead you want to submit 2 
+slurm scripts with 5 nodes each. Edit the `config.yaml` file  to look something like
 
 ```
 BASE_INPUT_FILE: '/PATH/TO/YOUR/input' # we take these values as the base                                                              
@@ -89,13 +93,13 @@ box:
   z: [] # must be a list                                                                                                                                           
   units: 'omega_pe' # you can use 'omega_pe', 'omega_pi', or 'cells'
 ```
-Note, if you're developing tristan and you want to try different executables, you can change the yaml file to have `exec: ['path/2/tristan1', 'path/to/tristan2']` or you can also change the box to have multiple sizes e.g. `x: [50, 100]`.
-Once you are happy with your config file, login to perseus, `module load anaconda3` and `python automater.py`. Check the `ROOT_DIRECTORY` for your runs.
+Note, if you're developing tristan and you want to try different executables, 
+you can change the yaml file to have `exec: ['path/2/tristan1', 'path/to/tristan2']` 
+or you can also change the box to have multiple sizes e.g. `x: [50, 100]`.
 
-## Visualization
-
-I added some routines and an api that may help you get started with analyzing all these runs with python. See visualizer.py.
-
+Once you are happy with your config file, login to 
+perseus, `module load anaconda3` and `python automater.py`. 
+Check the `ROOT_DIRECTORY` for your runs.
 
 ## Known issues
 Will not work for 3D runs (will work for 2D runs, 1D runs not tested but should work.)
