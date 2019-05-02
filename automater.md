@@ -1,4 +1,4 @@
-# tristanAutomator
+# tristanAutomater
 A simple way batch run tristan-mp simulations with a slurm workload manager system.
 
 The basic idea is that this script allows you to pass lists of any parameter found 
