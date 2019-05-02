@@ -32,6 +32,7 @@ class TristanSim(object):
     def getFileNums(self):
         try:
             # Create a dictionary of all the paths to the files
+            hasStar = 0
             for key, regEx in zip(self._outputFileKey, self._outputFileRegEx):
                 self._pathDict[key] = [item for item in filter(regEx.match, os.listdir(self.dir))]
                 self._pathDict[key].sort()
@@ -40,13 +41,17 @@ class TristanSim(object):
                     try: 
                         int(elm.split('.')[-1])
                     except ValueError:
+                        if elm.split('.')[-1] == '***':
+                            hasStar += 1
                         self._pathDict[key].remove(elm)
             ### GET THE NUMBERS THAT HAVE ALL SET OF FILES:
             allThere = set(elm.split('.')[-1] for elm in self._pathDict[self._outputFileKey[0]])
             for key in self._pathDict.keys():
                 allThere &= set(elm.split('.')[-1] for elm in self._pathDict[key])
-            allThere = sorted(allThere, key=lambda x: int(x.split('.')[-1]))
-            return list(allThere)
+            allThere = list(sorted(allThere, key = lambda x: int(x)))
+            if hasStar == len(self._pathDict.keys()):
+                allThere.append('***')
+            return allThere
 
         except OSError:
             return []
