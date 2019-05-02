@@ -27,8 +27,11 @@ c/omega_pi, and you want each to be it's own slurm script taking 4 nodes. Edit t
 `config.yaml` file  to look something like
 
 ```
-BASE_INPUT_FILE: '/PATH/TO/YOUR/input' # we take these values as the base                                                              
-ROOT_DIRECTORY: '/PATH/TO/batchTristanOUT/' #don't worry about creating this dir but it will overwrite                 
+# Need and input file to use as the base values
+BASE_INPUT_FILE: '/PATH/TO/YOUR/input'      
+
+# The directory where our runs will be saved
+ROOT_DIRECTORY: '/PATH/TO/batchTristanOUT/' 
 
 paramOpts:                                                                                                                                                         
   mi : [1.,32.,124.]                                                                                                                                               
@@ -62,8 +65,8 @@ You don't want to submit 27 slurm scripts, instead you want to submit 2
 slurm scripts with 5 nodes each. Edit the `config.yaml` file  to look something like
 
 ```
-BASE_INPUT_FILE: '/PATH/TO/YOUR/input' # we take these values as the base                                                              
-ROOT_DIRECTORY: '/PATH/TO/batchTristanOUT/' #don't worry about creating this dir but it will overwrite                 
+BASE_INPUT_FILE: '/PATH/TO/YOUR/input'                                                             
+ROOT_DIRECTORY: '/PATH/TO/batchTristanOUT/'                 
 
 paramOpts:                                                                                                                                                         
   c_omp: [6,8,16]                                                                                                                                                     
