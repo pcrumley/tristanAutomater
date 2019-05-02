@@ -154,7 +154,7 @@ class simulationSearcher(object):
                 outfile = 'out'
                 coresNeeded = int(cfgDict[self.__cfgMapper['sizex']]['sizex'])*int(cfgDict[self.__cfgMapper['sizey']]['sizey'])
                 os.system(f'cp {elm} {dirname}')
-                slurmcmds.append({'cores': coresNeeded, 'slurmString': f"cd {dirname} && srun -n {coresNeeded} {elm} -i input -o {outdir} > {outfile}"})
+                slurmcmds.append({'cores': coresNeeded, 'slurmString': f"cd {dirname} && srun -n {coresNeeded} {tmpStr} -i input -o {outdir} > {outfile}"})
         #print(len(slurmcmds), self._submitOpts['jobs'])
         #print(range(0,len(slurmcmds), len(slurmcmds)//self._submitOpts['jobs']))
         breaks = list(range(0,len(slurmcmds)+1, len(slurmcmds)//self._submitOpts['jobs']))
