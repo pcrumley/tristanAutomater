@@ -90,19 +90,19 @@ class h5Wrapper(object):
 
     def __getattribute__(self, name):
         if object.__getattribute__(self, name) is None:
-            if name in self.__keys:
+            if name in self.__h5keys:
                 with h5py.File(self._fname, 'r') as f:                
                     setattr(self, name, f[name][:])
         return object.__getattribute__(self, name)
 
     def keys(self):
-        return self.__keys
+        return self.__h5keys
 
     def reload(self):
         with h5py.File(self._fname, 'r') as f:
             for key in f.keys():
-                self.__keys = [key for key in f.keys()]
-        for key in self.__keys:
+                self.__h5keys = [key for key in f.keys()]
+        for key in self.__h5keys:
             setattr(self, key, None)
 
 if __name__=='__main__':
