@@ -136,11 +136,13 @@ Let's plot all the total electron energy as function of time for each run, where
 and marker styles depend on c_omp, ppc and ntimes.
 
 ```python
-c_omp_val = list(set([elm.output[0].param.c_omp for elm in runs]))
-ppc_val = list(set([elm.output[0].param.ppc0 for elm in runs]))
-ntimes_val = list(set([elm.output[0].param.ntimes for elm in runs]))
+# First get all of the unique values of c_omp, ppc and ntimes from our suite of runs.
 
-# Some arrays that change what the lines will look like
+c_omp_val = list(set([run.output[0].param.c_omp for run in runs]))
+ppc_val = list(set([run.output[0].param.ppc0 for run in runs]))
+ntimes_val = list(set([run.output[0].param.ntimes for run in runs]))
+
+# Lists that store what the linestyles will be.
 ms = ['.', 'x', '4', '8']
 ls = ['-', '--', ':', '-.']
 color = ['b', 'r', 'g', 'y']
@@ -149,7 +151,8 @@ fig = plt.figure()
 for run in runs:
     # In this example, we have fast moving test particles that have negative indices we don't want to count
     # towards this energy.
-    plt.plot([o.time for o in run.output], [np.average(o.prtl.gammae[o.prtl.inde>0]-1) for o in run.output],
+    plt.plot([o.param.time for o in run.output], 
+    [np.average(o.prtl.gammae[o.prtl.inde>0]-1) for o in run.output],
              c = color[ppc_val.index(run.output[0].param.ppc0)],
              linestyle = ls[ntimes_val.index(run.output[0].param.ntimes)],
              marker = ms[c_omp_val.index(run.output[0].param.comp)], markersize = 10)
