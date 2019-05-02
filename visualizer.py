@@ -14,7 +14,6 @@ with open(yamlFile, 'r') as stream:
 #outdir = config['ROOT_DIRECTORY']
 
 outdir = '../batchTristan'
-
 runs = []
 # runs will be a list a tristan simulations instances 
 # that reside in outdir
@@ -49,9 +48,9 @@ axes = fig.subplots(3,3).flatten()
 j = 0
 for run, name in zip(runs, runNames):
     ax = axes[j]
-    istep = run.output[4].istep
-    comp = run.output[4].comp
-    ex = run.output[4].ex[0,:,:]
+    istep = run.output[4].param.istep
+    comp = run.output[4].param.comp
+    ex = run.output[4].flds.ex[0,:,:]
     ax.imshow(ex,extent=(0, ex.shape[1]*istep/comp, 0, ex.shape[0]*istep/comp), origin = 'lower')
     ax.set_title(name)
     #plt.colorbar()
@@ -79,13 +78,13 @@ color = ['b', 'r', 'g', 'y']
 fig = plt.figure()
 for run in runs:
     # we don't want to count the fast moving particles towards our KE average
-    plt.plot([o.time for o in run.output], [np.average(o.lecs.KE[o.lecs.index>0]) for o in run.output],
-             c = color[ppc_val.index(run.output[0].ppc0)],
-             linestyle = ls[ntimes_val.index(run.output[0].ntimes)],
-             marker = ms[c_omp_val.index(run.output[0].comp)], markersize = 10)
+    plt.plot([o.time for o in run.output], [np.average(o.prtl.gammae[o.prtl.inde>0]-1) for o in run.output],
+             c = color[ppc_val.index(run.output[0].param.ppc0)],
+             linestyle = ls[ntimes_val.index(run.output[0].param.ntimes)],
+             marker = ms[c_omp_val.index(run.output[0].param.comp)], markersize = 10)
 plt.show()
 
-
+"""
 ###
 #
 # EXAMPLE OF TRACKING PARTICLES
@@ -123,3 +122,4 @@ for prtl in myRun.trackedLecs[-10:]:
     plt.plot(prtl.t, prtl.gamma, 'k')
 
 plt.show()
+"""
