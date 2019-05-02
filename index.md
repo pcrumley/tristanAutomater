@@ -1,4 +1,6 @@
-Analyze and run your *tristan-MP* simulations without boiler-plate. 
-tristanUtils consists of two main utilities: 
-`automater.py` a python script that will submit tristan scripts using the slurm workload manager, 
-and `TristanSim.py` a python3 which exposes the data saved by tristan-MP.
+tristanUtils consists of two utilities that make running & analyzing *tristan-MP* simulations easier. 
+
+First is [automater.py](automater.md), a python script that makes running many SLURM jobs much simpler.
+
+The second is [TristanSim](tristanSim.md), a python 3 object that contains all of the 
+data in your HDF5 outputs as attributes which are lazily evaluated.
