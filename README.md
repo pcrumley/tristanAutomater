@@ -1,6 +1,6 @@
 Analyze and run your *tristan-MP* simulations without boiler-plate. tristanUtils consists of two main utilities: `automater.py` a python script that will submit tristan scripts using the slurm workload manager & a python 3 class `TristanSim` which exposes the data saved by *tristan-MP*. 
 
-All documentation of these utilities is at this progect's [Github-Page](https://pcrumley.github.io/tristanUtils)
+All documentation of these utilities is at this project's [Github-Page](https://pcrumley.github.io/tristanUtils)
 
 ## Known issues for automater.py
 Will not work for 3D runs (will work for 2D runs, 1D runs not tested but should work.)
