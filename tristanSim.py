@@ -64,12 +64,18 @@ class OutputPoint(object):
     particle-in-cell simulations. The specifics of your simulation should be
     defined as a class that extends this object.'''
     def __init__(self, sim, n=0):
+        self.__myKeys = []
         for key, fname in zip(sim._outputFileKey, sim._outputFileNames):
+            self.__myKeys.append(key)
             tmpStr = ''
             for elm in fname.split('.')[:-1]:
                 tmpStr += elm +'.'
             tmpStr += n
             setattr(self, key, h5Wrapper(os.path.join(sim.dir, tmpStr)))
+
+    def reload(self):
+        for key in self.__myKeys:
+            getattr(self, key).reload()
 
     
 class h5Wrapper(object):
