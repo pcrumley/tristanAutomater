@@ -37,40 +37,6 @@ out4.fields.ex
 
 `out4.prtl`, `out4.spect` and `out4.param` are similarly defined. If you want to add additional hdf5 output files to look for, you can do so in the `__init__()` function of the TristanSim class.
 
-### Tracking Prtls.
-
-UPDATE THIS SECTION!
-
-```python
-###
-#
-# EXAMPLE OF TRACKING PARTICLES
-#
-###
-# you'll find all of the tracked particles in a trackedLecs and 
-# trackedIon object. The first call builds the database which may take
-# awhile. It is saved afterwards. Let's plot a single tracked electron
-# for these runs we didn't track the ions. 
-# Let's focus just on one run for simplicity
-myRun = runs[0]
-# plot t vs gamma for a random prtl
-choice = np.random.randint(len(myRun.trackedLecs))
-randPrtl = myRun.trackedLecs[choice]
-# Each prtl has the following attributes: 'x', 'y', 'u', 'v', 'w', 
-# 'gamma', 'bx', 'by', 'bz', 'ex', 'ey', 'ez'
-plt.plot(randPrtl.t, randPrtl.gamma)
-plt.show()
-# This is nice, but let's say you want to find the 10 highest energy
-# prtls you saved.
-# First sort by energy. You can pass any function here
-myRun.trackedLecs.sort(lambda x: np.max(x.gamma))
-# now plot the botton N
-for prtl in myRun.trackedLecs[:-10]:
-    plt.plot(prtl.t, prtl.gamma, 'lightgray')
-for prtl in myRun.trackedLecs[-10:]:
-    plt.plot(prtl.t, prtl.gamma, 'k')
-plt.show()
-```
 ### Fancy Examples
 If you have a suite of runs you had run with [automater.py](automater.md), 
 this class comes in handy. 
@@ -156,5 +122,40 @@ for run in runs:
              c = color[ppc_val.index(run.output[0].param.ppc0)],
              linestyle = ls[ntimes_val.index(run.output[0].param.ntimes)],
              marker = ms[c_omp_val.index(run.output[0].param.comp)], markersize = 10)
+plt.show()
+```
+
+### Tracking Prtls.
+
+UPDATE THIS SECTION!
+
+```python
+###
+#
+# EXAMPLE OF TRACKING PARTICLES
+#
+###
+# you'll find all of the tracked particles in a trackedLecs and 
+# trackedIon object. The first call builds the database which may take
+# awhile. It is saved afterwards. Let's plot a single tracked electron
+# for these runs we didn't track the ions. 
+# Let's focus just on one run for simplicity
+myRun = runs[0]
+# plot t vs gamma for a random prtl
+choice = np.random.randint(len(myRun.trackedLecs))
+randPrtl = myRun.trackedLecs[choice]
+# Each prtl has the following attributes: 'x', 'y', 'u', 'v', 'w', 
+# 'gamma', 'bx', 'by', 'bz', 'ex', 'ey', 'ez'
+plt.plot(randPrtl.t, randPrtl.gamma)
+plt.show()
+# This is nice, but let's say you want to find the 10 highest energy
+# prtls you saved.
+# First sort by energy. You can pass any function here
+myRun.trackedLecs.sort(lambda x: np.max(x.gamma))
+# now plot the botton N
+for prtl in myRun.trackedLecs[:-10]:
+    plt.plot(prtl.t, prtl.gamma, 'lightgray')
+for prtl in myRun.trackedLecs[-10:]:
+    plt.plot(prtl.t, prtl.gamma, 'k')
 plt.show()
 ```
