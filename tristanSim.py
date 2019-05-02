@@ -19,8 +19,7 @@ class cachedProperty(object):
 
 class TristanSim(object):
     def __init__(self, dirpath=None, xtraStride = 1):
-        self.__allTrackKeys = ['t', 'x', 'y', 'u', 'v', 'w', 'gamma', 'bx', 'by', 'bz', 'ex', 'ey', 'ez']
-        self.trackKeys = self.__allTrackKeys
+        self._trackKeys = ['t', 'x', 'y', 'u', 'v', 'w', 'gamma', 'bx', 'by', 'bz', 'ex', 'ey', 'ez']
         self._outputFileNames = ['flds.tot.*', 'prtl.tot.*', 'spect.*', 'param.*']
         self._outputFileKey = [key.split('.')[0] for key in self._outputFileNames]
         self._outputFileRegEx = [re.compile(elm) for elm in self._outputFileNames]
@@ -29,17 +28,6 @@ class TristanSim(object):
         self.getFileNums()
         self.xtraStride = xtraStride
         self.output = [OutputPoint(self, n=x) for x in self.getFileNums()]
-
-    @property
-    def trackKeys(self):
-        return self.__trackKeys
-
-    @trackKeys.setter
-    def trackKeys(self, args):
-        self.__trackKeys = []
-        for arg in args:
-            if arg in self.__allTrackKeys:
-                self.__trackKeys.append(arg)
 
     def getFileNums(self):
         try:
@@ -54,22 +42,21 @@ class TristanSim(object):
                     except ValueError:
                         self._pathDict[key].remove(elm)
             ### GET THE NUMBERS THAT HAVE ALL SET OF FILES:
-            allFour = set(elm.split('.')[-1] for elm in self._pathDict[self._outputFileKey[0]])
+            allThere = set(elm.split('.')[-1] for elm in self._pathDict[self._outputFileKey[0]])
             for key in self._pathDict.keys():
-                allFour &= set(elm.split('.')[-1] for elm in self._pathDict[key])
-            allFour = sorted(allFour, key=lambda x: int(x.split('.')[-1]))
-            print(allFour)
-            return list(allFour)
+                allThere &= set(elm.split('.')[-1] for elm in self._pathDict[key])
+            allThere = sorted(allThere, key=lambda x: int(x.split('.')[-1]))
+            return list(allThere)
 
         except OSError:
             return []
 
     @cachedProperty
     def trackedLecs(self):
-        return TrackedDatabase(self, 'lecs', keys = self.trackKeys)
+        return TrackedDatabase(self, 'lecs', keys = self._trackKeys)
     @cachedProperty
     def trackedIons(self):
-        return TrackedDatabase(self, 'ions', keys = self.trackKeys)
+        return TrackedDatabase(self, 'ions', keys = self._trackKeys)
 
 
 class OutputPoint(object):
@@ -88,25 +75,29 @@ class OutputPoint(object):
 class h5Wrapper(object):
     def __init__(self, fname):
         self._fname = fname
-        with h5py.File(self._fname, 'r') as f:
-            for key in f.keys():
-                self.__keys = [key for key in f.keys()]
-        for key in self.__keys:
-            setattr(self, key, None)
-            #setattr(self, key, cachedProperty(lambda: self.getKey(key)))
+        self.reload()
+
     def __getattribute__(self, name):
         if object.__getattribute__(self, name) is None:
             if name in self.__keys:
                 with h5py.File(self._fname, 'r') as f:                
                     setattr(self, name, f[name][:])
         return object.__getattribute__(self, name)
+
     def keys(self):
         return self.__keys
 
+    def reload(self):
+        with h5py.File(self._fname, 'r') as f:
+            for key in f.keys():
+                self.__keys = [key for key in f.keys()]
+        for key in self.__keys:
+            setattr(self, key, None)
 
 if __name__=='__main__':
     import time
     import matplotlib.pyplot as plt
     mySim = TristanSim('../Iseult/output')
     plt.imshow(mySim.output[0].flds.ex[0,:,:])
+    print(mySim.output[0].flds.keys())
     plt.show()
