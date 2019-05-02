@@ -33,7 +33,7 @@ print(out4.fields.keys())
 # you can get any of those attributes by typing e.g.,
 out4.fields.ex
 ```
-`fields.ex` is lazily evaluated. The first time it is read from the hdf5 file, but afterwards it is in memory. If you want to delete it and reload `out4.fields.reload()` `out4.fields.ex`
+`fields.ex` is lazily evaluated. The first time it is read from the hdf5 file, but afterwards it is in memory. If you want to delete it and reload `out4.fields.reload()` Then you can access it from teh disk by typing `out4.fields.ex`.
 
 `out4.prtl`, `out4.spect` and `out4.param` are similarly defined. If you want to add additional hdf5 output files to look for, you can do so in the `__init__()` function of the TristanSim class.
 
