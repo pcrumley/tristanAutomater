@@ -138,35 +138,63 @@ plt.show()
 
 ### Tracking Prtls.
 
-UPDATE THIS SECTION!
+The tristanSim class can also track particles. It requires a particular 
+`output.F90` of tristan, but if the files are saved properly,
+you'll find all of the tracked particles in a trackedLecs and 
+trackedIon object. The first call builds the database which may take
+awhile. It is saved afterwards. 
 
+### Examples
+Let's plot a single tracked electron for these runs we didn't track the ions. 
+
+Focus just on one run for simplicity
 ```python
-###
-#
-# EXAMPLE OF TRACKING PARTICLES
-#
-###
-# you'll find all of the tracked particles in a trackedLecs and 
-# trackedIon object. The first call builds the database which may take
-# awhile. It is saved afterwards. Let's plot a single tracked electron
-# for these runs we didn't track the ions. 
-# Let's focus just on one run for simplicity
 myRun = runs[0]
+
 # plot t vs gamma for a random prtl
+
 choice = np.random.randint(len(myRun.trackedLecs))
 randPrtl = myRun.trackedLecs[choice]
+
 # Each prtl has the following attributes: 'x', 'y', 'u', 'v', 'w', 
 # 'gamma', 'bx', 'by', 'bz', 'ex', 'ey', 'ez'
+
 plt.plot(randPrtl.t, randPrtl.gamma)
 plt.show()
-# This is nice, but let's say you want to find the 10 highest energy
-# prtls you saved.
-# First sort by energy. You can pass any function here
+```
+
+This is nice, but let's say you want to find the 10 highest energy
+prtls you saved. trackedLecs allows you to sort the database.
+
+As an example, let's  sort by energy. You can pass any function here
+```python
 myRun.trackedLecs.sort(lambda x: np.max(x.gamma))
 # now plot the botton N
 for prtl in myRun.trackedLecs[:-10]:
     plt.plot(prtl.t, prtl.gamma, 'lightgray')
+
 for prtl in myRun.trackedLecs[-10:]:
     plt.plot(prtl.t, prtl.gamma, 'k')
+
 plt.show()
 ```
+You can also apply a mask to your particle to choose ones
+matching a certain criteria. You can pass any function
+that returns a truthy value
+```python
+myRun.trackedLecs.mask(lambda x: np.max(x.gamma)>10.1)
+plt.subplot(211)
+for prtl in myRun.trackedLecs:
+    plt.plot(prtl.t, prtl.gamma)
+# Masks are applied successively. However you can unmask.
+# Let's plot all the other prtls
+myRun.trackedLecs.unmask()
+myRun.trackedLecs.mask(lambda x: np.max(x.gamma)<10.1)
+plt.subplot(212)
+for prtl in myRun.trackedLecs:
+    plt.plot(prtl.t, prtl.gamma)
+
+plt.show()
+```
+
+All of this code can be found in `visualization.py` in the main source directory.
