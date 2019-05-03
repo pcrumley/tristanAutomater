@@ -78,6 +78,9 @@ for elm in os.listdir(outdir):
 # Now, any run can be accessed 
 # e.g. runs[4], with a name runNames[4]
 # to access the 3rd output time of run4: e.g. runs[4][3]
+
+# NOTE: because runs is a 1D list of objects, treating 
+# it as a 2D list, e.g. runs[4,3] WILL NOT WORK.
 ```
 
 Plotting ex of the 5th output timestep of each simulation in a 3x3 grid 
