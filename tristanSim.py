@@ -37,10 +37,12 @@ class TristanSim(object):
             for fkey in self._outputFileKey:
                 for key in getattr(self[0], '_'+fkey).keys():
                     if key in self._h5Key2FileDict.keys():
-                        if key in self._collisionFixers.keys():
+                        if key not in self._collisionFixers.keys():
+                            print(f'{key} in {fkey} has collision with {self._h5Key2FileDict[key]}')
+                            print(f'Please update self._collisionFixers dictionary in __init__()')
+                            print(f'function of TristanSim class')
+                        else:
                             self._h5Key2FileDict[key] = self._collisionFixers[key]
-                            print(f'{key} in {fkey} has collision with {self._collisionFixers[key]}')
-                            print(f' you can find {key} in sim[i]._{fkey}.{key}')
                     else:
                         self._h5Key2FileDict[key] = fkey
             self.__output[0].setMapper(self._h5Key2FileDict)
