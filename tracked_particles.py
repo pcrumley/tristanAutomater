@@ -52,7 +52,7 @@ class TrackedDatabase(object):
                 setattr(self, '_'+ key, np.ones(int(np.sum(n))))
             for tfile in tlist:
                 with h5py.File(os.path.join(outdir, tfile) ,'r') as f:
-                    tcur=int(tfile.split('.')[-1])*sim.output[0].c/sim.output[0].comp
+                    tcur=int(tfile.split('.')[-1])*sim[0].c/sim[0].c_omp
                     tag = np.empty(len(f['ind']), dtype = 'int64')
                     with f['ind'].astype('int64'):
                         tag[:] = np.abs(f['ind'][:])

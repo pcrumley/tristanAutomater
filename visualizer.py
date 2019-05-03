@@ -19,8 +19,10 @@ runs = []
 # that reside in outdir
 
 
-# So any run can be accessed as run5 = runs[4]
-# to access the output time e.g. 3rd output, run5Time3 = runs[4].output[2]
+# So any run can be accessed as run4 = runs[4]
+# to access the output time e.g. 4th output, run4Time3 = runs[4][3]
+# NOTE: because runs is a 1D list of objects, treating 
+# it as a 2D list, e.g. runs[4,3] WILL NOT WORK.
 
 runNames = [] #the directory name that automater created.
 for elm in os.listdir(outdir):
@@ -64,11 +66,13 @@ plt.show()
 ### As another example, let's plot all the total electron energy
 ## as function of time for each run
 
-# I know I changed c_omp, ntimes and ppc. get from YAML
 
-c_omp_val = config['paramOpts']['c_omp']
-ppc_val = config['paramOpts']['ppc0']
-ntimes_val = config['paramOpts']['ntimes']
+
+# First get all of the unique values of c_omp, ppc and ntimes from our suite of runs.
+
+c_omp_val = list(set([run[0].c_omp for run in runs]))
+ppc_val = list(set([run[0].ppc0 for run in runs]))
+ntimes_val = list(set([run[0].ntimes for run in runs]))
 
 # Some arrays that change what the lines will look like
 ms = ['.', 'x', '4', '8']
@@ -84,7 +88,7 @@ for run in runs:
              marker = ms[c_omp_val.index(run[0].c_omp)], markersize = 10)
 plt.show()
 
-"""
+
 ###
 #
 # EXAMPLE OF TRACKING PARTICLES
@@ -100,10 +104,10 @@ plt.show()
 
 myRun = runs[0]
 
-
 # plot t vs gamma for a random prtl
 choice = np.random.randint(len(myRun.trackedLecs))
 randPrtl = myRun.trackedLecs[choice]
+
 # Each prtl has the following attributes: 'x', 'y', 'u', 'v', 'w', 
 # 'gamma', 'bx', 'by', 'bz', 'ex', 'ey', 'ez'
 plt.plot(randPrtl.t, randPrtl.gamma)
@@ -122,4 +126,4 @@ for prtl in myRun.trackedLecs[-10:]:
     plt.plot(prtl.t, prtl.gamma, 'k')
 
 plt.show()
-"""
+

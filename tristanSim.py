@@ -45,7 +45,7 @@ class TristanSim(object):
                             self._h5Key2FileDict[key] = self._collisionFixers[key]
                     else:
                         self._h5Key2FileDict[key] = fkey
-            self.__output[0].setMapper(self._h5Key2FileDict)
+            self.__output[0].setKeys(self._h5Key2FileDict)
     def getFileNums(self):
         try:
             # Create a dictionary of all the paths to the files
@@ -98,15 +98,15 @@ class TristanSim(object):
 class ObjectMapper(object):
     '''A base object that holds the info of one type of particle in the simulation
     '''
-    __h5_dict = {}
+    __h5Keys = []
     def __init__(self, sim, n=0):
         pass
     @classmethod
-    def setMapper(cls, dict):
-        cls.__h5_dict = {key: val for key, val in dict.items()}
+    def setKeys(cls, mapdict):
+        cls.__h5Keys = [key for key in mapdict.keys()]
     @classmethod
-    def getMapper(cls):
-        return cls.__h5_dict
+    def getKeys(cls):
+        return cls.__h5Keys
 
 class OutputPoint(ObjectMapper):
     '''A object that provides an API to access data from Tristan-mp
@@ -125,7 +125,7 @@ class OutputPoint(ObjectMapper):
             tmpStr += n
             setattr(self, '_'+key, h5Wrapper(os.path.join(sim.dir, tmpStr)))
     def __getattribute__(self, name):
-        if name in super().getMapper():
+        if name in super().getKeys():
             return getattr(getattr(self,'_'+self._sim._h5Key2FileDict[name]), name)
         else:
             return object.__getattribute__(self, name)
@@ -144,7 +144,10 @@ class h5Wrapper(object):
         if object.__getattribute__(self, name) is None:
             if name in self.__h5keys:
                 with h5py.File(self._fname, 'r') as f:
-                    setattr(self, name, f[name][:])
+                    if np.sum([x*x for x in f[name].shape])!= 1:
+                        setattr(self, name, f[name][:])
+                    else:
+                        setattr(self, name, f[name][0])
         return object.__getattribute__(self, name)
 
     def keys(self):
@@ -161,5 +164,5 @@ if __name__=='__main__':
     import time
     import matplotlib.pyplot as plt
     mySim = TristanSim('../Iseult/output')
-    plt.imshow(mySim[0].ex[0,:,:])
+    plt.imshow(mySim[0].ex)
     plt.show()
