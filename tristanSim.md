@@ -1,6 +1,6 @@
 TristanSim is an object that exposes an API to access *tristan-MP* simulations. 
-All of the data attributes are lazily evaluated, so the first time you access it, 
-they load from disk, but the next time it is cached.
+All of the data attributes are lazily evaluated. The first time you access it
+the attributes are loaded from the disk, but the next time it is cached.
 
 ## Code structure & implementation
 
