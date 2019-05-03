@@ -28,7 +28,7 @@ class TrackedDatabase(object):
                     self.tags = np.union1d(self.tags, tag)
                    
             # Produce a mask and an order
-            #self._mask = np.ones(len(self.tags),type='bool')
+            self._mask = np.ones(len(self.tags),dtype='bool')
             self._order = np.arange(len(self.tags))
 
             # GET THE LOCATION OF ALL THE BREAKS
@@ -75,11 +75,21 @@ class TrackedDatabase(object):
     ### __getitem__ so it looks like a list
     def __len__(self):
         #return np.sum(self._mask)
-        return len(self.tags)
+        return len(self._order)
     def sort(self, func):
         tmpFunc= lambda x:func(self[x])
-    ### rearranges the ordering so you can get 10 most energetic prtl e.g.
-        self._order = sorted(range(len(self)), key=tmpFunc)
+        ### rearranges the ordering so you can get 10 most energetic prtl e.g.
+        self._order = np.array(sorted(range(len(self)), key=tmpFunc))
+        
+    def mask(self, func):
+        ### rearranges the ordering so you can get 10 most energetic prtl e.g.
+        self._mask = list(map(func, self))
+        self._order = self._order[self._mask]
+
+    def unmask(self):
+        ### rearranges the ordering so you can get 10 most energetic prtl e.g.
+        self._mask = np.ones(len(self.tags), dtype='bool')
+        self._order = np.arange(len(self.tags))
 
     def __getitem__(self, val):
         if isinstance(val, slice):

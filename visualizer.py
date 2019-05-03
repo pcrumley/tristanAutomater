@@ -127,3 +127,19 @@ for prtl in myRun.trackedLecs[-10:]:
 
 plt.show()
 
+# You can also apply a mask to your particle to choose ones
+# matching a certain criteria. You can pass any function
+# that returns a truthy value
+myRun.trackedLecs.mask(lambda x: np.max(x.gamma)>10.1)
+plt.subplot(211)
+for prtl in myRun.trackedLecs:
+    plt.plot(prtl.t, prtl.gamma)
+# Masks are applied successively. However you can unmask.
+# Let's plot all the other prtls
+myRun.trackedLecs.unmask()
+myRun.trackedLecs.mask(lambda x: np.max(x.gamma)<10.1)
+plt.subplot(212)
+for prtl in myRun.trackedLecs:
+    plt.plot(prtl.t, prtl.gamma)
+
+plt.show()
