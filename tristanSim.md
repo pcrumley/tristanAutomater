@@ -100,7 +100,7 @@ for run, name in zip(runs, runNames):
     ax.set_title(name)
     #plt.colorbar()
     j += 1
-    if j == 18:
+    if j == len(axes):
         break
 #plt.savefig('test.png')
 plt.show()
