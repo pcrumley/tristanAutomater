@@ -131,16 +131,16 @@ color = ['b', 'r', 'g', 'y']
 
 fig = plt.figure()
 for run in runs:
-    # In this example, we have fast moving test particles 
-    # that have negative indices we don't want to count
-    # towards this energy.
+    # In this example, we have fast moving test
+    # particles that have negative indices we don't 
+    # want to count towards this energy.
     plt.plot([o.time for o in run], 
-    [np.average(o.gammae[o.inde>0]-1) for o in run],
-         c = color[ppc_val.index(run[0].ppc0)],
-         linestyle = ls[ntimes_val.index(run[0].ntimes)],
-         marker = ms[c_omp_val.index(run[0].comp)], 
-         markersize = 10
-     )
+     [np.average(o.gammae[o.inde>0]-1) for o in run],
+     c = color[ppc_val.index(run[0].ppc0)],
+     linestyle = ls[ntimes_val.index(run[0].ntimes)],
+     marker = ms[c_omp_val.index(run[0].comp)], 
+     markersize = 10
+    )
 plt.show()
 ```
 
