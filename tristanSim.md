@@ -1,12 +1,12 @@
-TristanSim is an object that exposes an API to access *tristan-MP* simulations. 
+TristanSim is an object that exposes an API to access *tristan-MP* simulations.
 All of the data attributes are lazily evaluated. The first time you access it
 the attributes are loaded from the disk, but the next time it is cached.
 
 ## Code structure & implementation
 
 ### Basic Tristan Outputs
-The TristanSim object takes a path to a directory upon initialization. Then it looks in that directory for any 
-file matching names `flds.tot.*`, `prtl.tot.*`, `param.*` and `spect.*`. If all 4 files are present it creates 
+The TristanSim object takes a path to a directory upon initialization. Then it looks in that directory for any
+file matching names `flds.tot.*`, `prtl.tot.*`, `param.*` and `spect.*`. If all 4 files are present it creates
 and output point for this timestep. Here's a quick example:
 ```python
 from tristanSim import TristanSim
@@ -17,38 +17,38 @@ you can think of it as a simple list
 
 
 Since you can treat the simulation object as if it just a list, we can access any of the output points using simple
-list operators. e.g., `len(myRun)` gives the number of output files, access the first 
+list operators. e.g., `len(myRun)` gives the number of output files, access the first
 one by `myRun[0]` or you can iterate over them.
 ```python
 for out in myRun:
     # Do something for each output point here
 ```
 
-To access the data on the disk you have to look at one of the objects in an output point. For instance 
+To access the data on the disk you have to look at one of the objects in an output point. For instance
 ```python
 myRun[4]
-myRun[4]._flds 
+myRun[4]._flds
 ```
 Fields is a pointer to the 5th flds.tot file in your output dir. You can see the attributes saved to the disk here by
 ```python
-print(myRun[4]._flds.keys()) 
+print(myRun[4]._flds.keys())
 # you can get any of those attributes by typing e.g.,
 myRun[4]._flds.ex
 # or more simply
 myRun[4].ex
 ```
-`myRun[4].ex` is lazily evaluated. The first time it is read from the hdf5 file, 
-but afterwards it is in memory. If you want to delete it and reload `myRun[4].reload()` 
+`myRun[4].ex` is lazily evaluated. The first time it is read from the hdf5 file,
+but afterwards it is in memory. If you want to delete it and reload `myRun[4].reload()`
 Then you can access it from the disk by typing `myRun[4].ex`.
 If you want to force all the field output to load and cache type `myRun.loadAllFields()`
 or `myRun.loadAllPrtls()` to load all the prtl outputs. In practice you shouldn't have to worry too much
 about the memory access if you are ok with it being lazily evaluated.
- 
+
 `myRun[4]._prtl`, `myRun[4]._spect` and `myRun[4]._param` are similarly defined, but if there are no collisions, any attribute should be able to be accessed as `myRun[4].c_omp` or whatever. There are a few collisions, and then you have to which one you want to default to. For instance `dens` is in `spect.*` and `flds.tot.` we default to the `flds` value. This can be set in the `__init__()` funcion of TristanSim, in the `self._colisionFixer` dictionary. If you want to add additional hdf5 output files to look for, you can do so in the `__init__()` function of the TristanSim class.
 
 ### Fancy Examples
-If you have a suite of runs you had run with [automater.py](automater.md), 
-this class comes in handy. 
+If you have a suite of runs you had run with [automater.py](automater.md),
+this class comes in handy.
 
 Building an iterable list of all your runs in a directory:
 ```python
@@ -57,17 +57,17 @@ import numpy as np
 from tristanSim import TristanSim
 
 # Point to the directory where the suite of runs
-# In this example I have 9 different simulations 
+# In this example I have 9 different simulations
 # saved in ../batchTristan
 outdir = '../batchTristan'
 
-# Let's create a list that will hold all our simulation 
+# Let's create a list that will hold all our simulation
 # instances.
 runs = []
 
-# We'll also name each run based on the directory 
+# We'll also name each run based on the directory
 # it resides.
-runNames = [] 
+runNames = []
 
 for elm in os.listdir(outdir):
     elm = os.path.join(outdir, elm)
@@ -80,11 +80,11 @@ for elm in os.listdir(outdir):
             runs.append(TristanSim(elm))
             runNames.append(dirName)
 
-# Now, any run can be accessed 
+# Now, any run can be accessed
 # e.g. runs[4], with a name runNames[4]
 # to access the 3rd output time of run4: e.g. runs[4][3]
 
-# NOTE: because runs is a 1D list of objects, treating 
+# NOTE: because runs is a 1D list of objects, treating
 # it as a 2D list, e.g. runs[4,3] WILL NOT WORK.
 ```
 
@@ -102,7 +102,7 @@ for run, name in zip(runs, runNames):
     ex = run[5].ex[0,:,:]
     imSize = [0, ex.shape[1], 0, ex.shape[0]]
     ax.imshow(ex,
-        extent=(x*istep/comp for x in imSize), 
+        extent=(x*istep/comp for x in imSize),
         origin = 'lower')
     ax.set_title(name)
     #plt.colorbar()
@@ -117,7 +117,7 @@ Let's plot all the total electron energy as function of time for each run, where
 and marker styles depend on c_omp, ppc and ntimes.
 
 ```python
-# First get all of the unique values of c_omp, ppc and 
+# First get all of the unique values of c_omp, ppc and
 # ntimes from our suite of runs.
 
 c_omp_val = list(set([r[0].c_omp for r in runs]))
@@ -132,13 +132,13 @@ color = ['b', 'r', 'g', 'y']
 fig = plt.figure()
 for run in runs:
     # In this example, we have fast moving test
-    # particles that have negative indices we don't 
+    # particles that have negative indices we don't
     # want to count towards this energy.
-    plt.plot([o.time for o in run], 
+    plt.plot([o.time for o in run],
      [np.average(o.gammae[o.inde>0]-1) for o in run],
      c = color[ppc_val.index(run[0].ppc0)],
      linestyle = ls[ntimes_val.index(run[0].ntimes)],
-     marker = ms[c_omp_val.index(run[0].comp)], 
+     marker = ms[c_omp_val.index(run[0].comp)],
      markersize = 10
     )
 plt.show()
@@ -146,14 +146,14 @@ plt.show()
 
 ### Tracking Prtls.
 
-The tristanSim class can also track particles. It requires a particular 
+The tristanSim class can also track particles. It requires a particular
 `output.F90` of tristan, but if the files are saved properly,
-you'll find all of the tracked particles in a trackedLecs and 
+you'll find all of the tracked particles in a trackedLecs and
 trackedIon object. The first call builds the database which may take
-awhile. It is saved afterwards. 
+awhile. It is saved afterwards.
 
 ### Examples
-Let's plot a single tracked electron for these runs we didn't track the ions. 
+Let's plot a single tracked electron for these runs we didn't track the ions.
 
 Focus just on one run for simplicity
 ```python
@@ -205,4 +205,4 @@ for prtl in myRun.trackedLecs:
 plt.show()
 ```
 
-All of this code can be found in `visualization.py` in the main source directory.
+All of this code can be found in `examples.py` in the main source directory.
