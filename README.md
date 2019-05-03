@@ -1,4 +1,4 @@
-Analyze and run your *tristan-MP* simulations without boiler-plate. tristanUtils consists of two main utilities: `automater.py` a python script that will submit tristan scripts using the slurm workload manager & a python 3 class `TristanSim` which exposes the data saved by *tristan-MP*. 
+Analyze and run your *tristan-MP* simulations without boiler-plate. tristanUtils consists of three main utilities: `automater.py` a python script that will submit tristan scripts using the slurm workload manager, a python 3 class `TristanSim` which exposes the data saved by *tristan-MP*, and set of helper function in `helperFuncs.py`
 
 All documentation of these utilities is at this project's [Github-Page](https://pcrumley.github.io/tristanUtils)
 
@@ -12,4 +12,4 @@ Currently assume every job has roughly the same computational cost when doing lo
 Consider switching the trackedLecs/trackedIons objects into a pandas dataframe
 
 ## Known issues for helperFuncs
-There are no helper functions yet. Need to add histograms, moments in 1D and 2D. 
+There are no helper functions yet. Need to add histograms, moments in 1D and 2D.
