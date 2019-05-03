@@ -9,6 +9,7 @@ Currently assume every job has roughly the same computational cost when doing lo
 
 
 ## Known issues for TristanSim class
-Need to add a mask ability to tracked particles.
+Consider switching the trackedLecs/trackedIons objects into a pandas dataframe
 
-Need to add histograms, moments in 1D and 2D. 
+## Known issues for helperFuncs
+There are no helper functions yet. Need to add histograms, moments in 1D and 2D. 
