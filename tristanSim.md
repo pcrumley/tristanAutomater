@@ -32,7 +32,7 @@ myRun[4]._flds
 # you can see the attributes saved to the disk here by
 print(myRun[4]._flds.keys()) 
 # you can get any of those attributes by typing e.g.,
-myRun[4]._fields.ex
+myRun[4]._flds.ex
 # or more simply
 myRun[4].ex
 ```
