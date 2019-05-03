@@ -28,8 +28,9 @@ To access the data on the disk you have to look at one of the objects in an outp
 ```python
 myRun[4]
 myRun[4]._flds 
-# Fields is a pointer to the 5th flds.tot file in your output dir
-# you can see the attributes saved to the disk here by
+```
+Fields is a pointer to the 5th flds.tot file in your output dir. You can see the attributes saved to the disk here by
+```python
 print(myRun[4]._flds.keys()) 
 # you can get any of those attributes by typing e.g.,
 myRun[4]._flds.ex
@@ -56,15 +57,16 @@ import numpy as np
 from tristanSim import TristanSim
 
 # Point to the directory where the suite of runs
-# In this example I have 9 different simulations saved in
-# ../batchTristan
+# In this example I have 9 different simulations 
+# saved in ../batchTristan
 outdir = '../batchTristan'
 
 # Let's create a list that will hold all our simulation 
 # instances.
 runs = []
 
-# We'll also name each run based on the directory it resides.
+# We'll also name each run based on the directory 
+# it resides.
 runNames = [] 
 
 for elm in os.listdir(outdir):
@@ -72,8 +74,11 @@ for elm in os.listdir(outdir):
     if os.path.isdir(elm):
         elm = os.path.join(elm,'output')
         if os.path.exists(elm):
+            # get the directory before 'output/'
+            dirName = os.path.split(elm)[0]
+            dirName = os.path.split(dirName)[-1]
             runs.append(TristanSim(elm))
-            runNames.append(os.path.split(os.path.split(elm)[0])[-1])
+            runNames.append(dirName)
 
 # Now, any run can be accessed 
 # e.g. runs[4], with a name runNames[4]
@@ -83,13 +88,9 @@ for elm in os.listdir(outdir):
 # it as a 2D list, e.g. runs[4,3] WILL NOT WORK.
 ```
 
-Plotting ex of the 5th output timestep of each simulation in a 3x3 grid 
+Plotting ex of the 5th output timestep of each simulation in a 3 x 3 grid. Because of how I set up the automater, all output[i] are at the same physical time.
 
 ```python
-# Here's an example of plotting the 5th time step of ex of each run
-# in a 3 x 3 grid. Because of how I set up the automater, all are at the
-# same physical time.
-
 fig = plt.figure()
 axes = fig.subplots(3,3).flatten()
 #print(axes)
@@ -99,7 +100,10 @@ for run, name in zip(runs, runNames):
     istep = run[5].istep
     comp = run[5].c_omp
     ex = run[5].ex[0,:,:]
-    ax.imshow(ex,extent=(0, ex.shape[1]*istep/comp, 0, ex.shape[0]*istep/comp), origin = 'lower')
+    imSize = [0, ex.shape[1], 0, ex.shape[0]]
+    ax.imshow(ex,
+        extent=(x*istep/comp for x in imSize), 
+        origin = 'lower')
     ax.set_title(name)
     #plt.colorbar()
     j += 1
@@ -113,7 +117,8 @@ Let's plot all the total electron energy as function of time for each run, where
 and marker styles depend on c_omp, ppc and ntimes.
 
 ```python
-# First get all of the unique values of c_omp, ppc and ntimes from our suite of runs.
+# First get all of the unique values of c_omp, ppc and 
+# ntimes from our suite of runs.
 
 c_omp_val = list(set([run[0].c_omp for run in runs]))
 ppc_val = list(set([run[0].ppc0 for run in runs]))
@@ -126,13 +131,15 @@ color = ['b', 'r', 'g', 'y']
 
 fig = plt.figure()
 for run in runs:
-    # In this example, we have fast moving test particles that have negative indices we don't want to count
+    # In this example, we have fast moving test particles 
+    # that have negative indices we don't want to count
     # towards this energy.
     plt.plot([out.time for out in run], 
     [np.average(out.gammae[out.inde>0]-1) for out in run],
              c = color[ppc_val.index(run[0].ppc0)],
              linestyle = ls[ntimes_val.index(run[0].ntimes)],
-             marker = ms[c_omp_val.index(run[0].comp)], markersize = 10)
+             marker = ms[c_omp_val.index(run[0].comp)], 
+             markersize = 10)
 plt.show()
 ```
 
@@ -156,8 +163,8 @@ myRun = runs[0]
 choice = np.random.randint(len(myRun.trackedLecs))
 randPrtl = myRun.trackedLecs[choice]
 
-# Each prtl has the following attributes: 'x', 'y', 'u', 'v', 'w', 
-# 'gamma', 'bx', 'by', 'bz', 'ex', 'ey', 'ez'
+# Each prtl has the following attributes: 'x', 'y', 'u', 'v',
+# 'w', 'gamma', 'bx', 'by', 'bz', 'ex', 'ey', 'ez'
 
 plt.plot(randPrtl.t, randPrtl.gamma)
 plt.show()
