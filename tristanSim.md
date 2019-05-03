@@ -120,9 +120,9 @@ and marker styles depend on c_omp, ppc and ntimes.
 # First get all of the unique values of c_omp, ppc and 
 # ntimes from our suite of runs.
 
-c_omp_val = list(set([run[0].c_omp for run in runs]))
-ppc_val = list(set([run[0].ppc0 for run in runs]))
-ntimes_val = list(set([run[0].ntimes for run in runs]))
+c_omp_val = list(set([r[0].c_omp for r in runs]))
+ppc_val = list(set([r[0].ppc0 for r in runs]))
+ntimes_val = list(set([r[0].ntimes for r in runs]))
 
 # Lists that store what the linestyles will be.
 ms = ['.', 'x', '4', '8']
@@ -134,12 +134,13 @@ for run in runs:
     # In this example, we have fast moving test particles 
     # that have negative indices we don't want to count
     # towards this energy.
-    plt.plot([out.time for out in run], 
-    [np.average(out.gammae[out.inde>0]-1) for out in run],
-             c = color[ppc_val.index(run[0].ppc0)],
-             linestyle = ls[ntimes_val.index(run[0].ntimes)],
-             marker = ms[c_omp_val.index(run[0].comp)], 
-             markersize = 10)
+    plt.plot([o.time for o in run], 
+    [np.average(o.gammae[o.inde>0]-1) for o in run],
+         c = color[ppc_val.index(run[0].ppc0)],
+         linestyle = ls[ntimes_val.index(run[0].ntimes)],
+         marker = ms[c_omp_val.index(run[0].comp)], 
+         markersize = 10
+     )
 plt.show()
 ```
 
@@ -163,8 +164,8 @@ myRun = runs[0]
 choice = np.random.randint(len(myRun.trackedLecs))
 randPrtl = myRun.trackedLecs[choice]
 
-# Each prtl has the following attributes: 'x', 'y', 'u', 'v',
-# 'w', 'gamma', 'bx', 'by', 'bz', 'ex', 'ey', 'ez'
+# Each prtl has the following attributes: 'x', 'y', 'u',
+# 'v', 'w', 'gamma', 'bx', 'by', 'bz', 'ex', 'ey', 'ez'
 
 plt.plot(randPrtl.t, randPrtl.gamma)
 plt.show()
