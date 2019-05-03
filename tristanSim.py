@@ -1,5 +1,6 @@
-import re, os, h5py
+import re, sys, os, h5py
 import numpy as np
+sys.path.insert(0, './src/')
 from tracked_particles import TrackedDatabase
 
 class cachedProperty(object):
@@ -164,5 +165,5 @@ if __name__=='__main__':
     import time
     import matplotlib.pyplot as plt
     mySim = TristanSim('../Iseult/output')
-    plt.imshow(mySim[0].ex)
+    plt.imshow(mySim[0].ex[0,:,:])
     plt.show()
