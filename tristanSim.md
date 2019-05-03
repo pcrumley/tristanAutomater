@@ -12,30 +12,38 @@ and output point for this timestep. Here's a quick example:
 from tristanSim import TristanSim
 myRun = TristanSim('/path/to/tristan/output/')
 ```
-The simulation object has been built. All output points are accessible in `myRun.output`
+The simulation object has been built. All output points are in the simulation object. For accessing it,
+you can think of it as a simple list
 
 
-Since the output attribute is just a list, we can access any of the output points using simple
-list operators. e.g., `len(myRun.output)` gives the number of output files, access the first 
-one by `myRun.output[0]` or you can iterate over them.
+Since you can treat the simulation object as if it just a list, we can access any of the output points using simple
+list operators. e.g., `len(myRun)` gives the number of output files, access the first 
+one by `myRun[0]` or you can iterate over them.
 ```python
-for out in myRun.output:
+for out in myRun:
     # Do something for each output point here
 ```
 
 To access the data on the disk you have to look at one of the objects in an output point. For instance 
 ```python
-out4 = myRun.output[4]
-out4.fields 
+myRun[4]
+myRun[4]._flds 
 # Fields is a pointer to the 5th flds.tot file in your output dir
 # you can see the attributes saved to the disk here by
-print(out4.fields.keys()) 
+print(myRun[4]._flds.keys()) 
 # you can get any of those attributes by typing e.g.,
-out4.fields.ex
+myRun[4]._fields.ex
+# or more simply
+myRun[4].ex
 ```
-`fields.ex` is lazily evaluated. The first time it is read from the hdf5 file, but afterwards it is in memory. If you want to delete it and reload `out4.fields.reload()` Then you can access it from teh disk by typing `out4.fields.ex`.
-
-`out4.prtl`, `out4.spect` and `out4.param` are similarly defined. If you want to add additional hdf5 output files to look for, you can do so in the `__init__()` function of the TristanSim class.
+`myRun[4].ex` is lazily evaluated. The first time it is read from the hdf5 file, 
+but afterwards it is in memory. If you want to delete it and reload `myRun[4].reload()` 
+Then you can access it from the disk by typing `myRun[4].ex`.
+If you want to force all the field output to load and cache type `myRun.loadAllFields()`
+or `myRun.loadAllPrtls()` to load all the prtl outputs. In practice you shouldn't have to worry too much
+about the memory access if you are ok with it being lazily evaluated.
+ 
+`myRun[4]._prtl`, `myRun[4]._spect` and `myRun[4]._param` are similarly defined, but if there are no collisions, any attribute should be able to be accessed as `myRun[4].c_omp` or whatever. There are a few collisions, and then you have to which one you want to default to. For instance `dens` is in `spect.*` and `flds.tot.` we default to the `flds` value. This can be set in the `__init__()` funcion of TristanSim, in the `self._colisionFixer` dictionary. If you want to add additional hdf5 output files to look for, you can do so in the `__init__()` function of the TristanSim class.
 
 ### Fancy Examples
 If you have a suite of runs you had run with [automater.py](automater.md), 
@@ -85,9 +93,9 @@ axes = fig.subplots(3,3).flatten()
 j = 0
 for run, name in zip(runs, runNames):
     ax = axes[j]
-    istep = run.output[5].param.istep
-    comp = run.output[5].param.c_omp
-    ex = run.output[5].flds.ex[0,:,:]
+    istep = run[5].istep
+    comp = run[5].c_omp
+    ex = run[5].ex[0,:,:]
     ax.imshow(ex,extent=(0, ex.shape[1]*istep/comp, 0, ex.shape[0]*istep/comp), origin = 'lower')
     ax.set_title(name)
     #plt.colorbar()
@@ -104,9 +112,9 @@ and marker styles depend on c_omp, ppc and ntimes.
 ```python
 # First get all of the unique values of c_omp, ppc and ntimes from our suite of runs.
 
-c_omp_val = list(set([run.output[0].param.c_omp for run in runs]))
-ppc_val = list(set([run.output[0].param.ppc0 for run in runs]))
-ntimes_val = list(set([run.output[0].param.ntimes for run in runs]))
+c_omp_val = list(set([run[0].c_omp for run in runs]))
+ppc_val = list(set([run[0].ppc0 for run in runs]))
+ntimes_val = list(set([run[0].ntimes for run in runs]))
 
 # Lists that store what the linestyles will be.
 ms = ['.', 'x', '4', '8']
@@ -117,11 +125,11 @@ fig = plt.figure()
 for run in runs:
     # In this example, we have fast moving test particles that have negative indices we don't want to count
     # towards this energy.
-    plt.plot([o.param.time for o in run.output], 
-    [np.average(o.prtl.gammae[o.prtl.inde>0]-1) for o in run.output],
-             c = color[ppc_val.index(run.output[0].param.ppc0)],
-             linestyle = ls[ntimes_val.index(run.output[0].param.ntimes)],
-             marker = ms[c_omp_val.index(run.output[0].param.comp)], markersize = 10)
+    plt.plot([out.time for out in run], 
+    [np.average(out.gammae[out.inde>0]-1) for out in run],
+             c = color[ppc_val.index(run[0].ppc0)],
+             linestyle = ls[ntimes_val.index(run[0].ntimes)],
+             marker = ms[c_omp_val.index(run[0].comp)], markersize = 10)
 plt.show()
 ```
 
