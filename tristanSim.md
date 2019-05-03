@@ -77,7 +77,7 @@ for elm in os.listdir(outdir):
 
 # Now, any run can be accessed 
 # e.g. runs[4], with a name runNames[4]
-# to access the 3rd output time of run4: e.g. runs[4].output[3]
+# to access the 3rd output time of run4: e.g. runs[4][3]
 ```
 
 Plotting ex of the 5th output timestep of each simulation in a 3x3 grid 
