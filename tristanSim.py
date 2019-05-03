@@ -88,7 +88,7 @@ class TristanSim(object):
             for key, val in self._h5Key2FileDict.items():
                 if val == 'flds':
                     getattr(out, key)
-    def loadAllPrtl(self):
+    def loadAllPrtls(self):
         for out in self:
             for key, val in self._h5Key2FileDict.items():
                 if val == 'prtl':
