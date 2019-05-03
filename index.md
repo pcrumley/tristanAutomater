@@ -4,4 +4,4 @@ First is [automater.py](automater.md), a python script that makes running many S
 
 The second is [TristanSim](tristanSim.md), a python 3 object that contains all of the 
 data in your HDF5 outputs as attributes which are lazily evaluated. The `TristanSim` class 
-also contains some helper functions that make plotting easier.
+also contains some [helper functions](helperFunc.md) that make plotting easier.
