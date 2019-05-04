@@ -26,7 +26,7 @@ plt.show()
 ```
 Admittedly this isn't much better than plt.hist, except about 20 faster.
 You can pass the hist1D any kwargs that go to plt.plot(), and you can
-pass and Axes object if you want. As in plt.plot(). hist1D returns
+pass an Axes object if you want. As in plt.plot(). hist1D returns
 as Line2D object.
 
 ```python
