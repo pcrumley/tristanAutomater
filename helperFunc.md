@@ -15,10 +15,11 @@ import numpy as np
 
 # Use TristanSim class to get access to data.
 myRun = TristanSim('/Path/To/Output/')
+```
+Further documentation explanation may follow. For now,
+these examples will have to suffice
 
-# Further documentation explanation may follow but for now,
-# See these examples
-
+```python
 # you can take a histogram of particle quantity as
 hist1D(myRun[0].xe)
 plt.show()
