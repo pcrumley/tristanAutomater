@@ -1,6 +1,6 @@
-TristanSim is an object that exposes an API to access *tristan-MP* simulations.
-All of the data attributes are lazily evaluated. The first time you access it
-the attributes are loaded from the disk, but the next time it is cached.
+TristanSim is an object relational mapping (ORM) that exposes an API to access 
+*tristan-MP* simulations. All of the data attributes are lazily evaluated. 
+The first time you access it the attributes are loaded from the disk, but the next time it is cached.
 
 ## Code structure & implementation
 
@@ -206,3 +206,10 @@ plt.show()
 ```
 
 All of this code can be found in `examples.py` in the main source directory.
+
+## Support for other pic sims.
+
+It's easy enough to tweak tristanSim to create an ORM for other simulations. I have done so for 
+[PICTOR](https://rahuliitk.wixsite.com/pictor/getting-started), although unfortunately it 
+uses the same keys that pictor uses, example `sim[n].ex` in *Tristan-MP* becomes `sim[n].Ex` in *Pictor*
+and `sim[n].xi` becomes `sim[n].x[sim[n].flv==1]`
