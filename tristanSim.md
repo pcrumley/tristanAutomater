@@ -211,5 +211,4 @@ All of this code can be found in `examples.py` in the main source directory.
 
 It's easy enough to tweak tristanSim to create an ORM for other simulations. I have done so for 
 [PICTOR](https://rahuliitk.wixsite.com/pictor/getting-started), although unfortunately it 
-uses the same keys that pictor uses, example `sim[n].ex` in *Tristan-MP* becomes `sim[n].Ex` in *Pictor*
-and `sim[n].xi` becomes `sim[n].x[sim[n].flv==1]`
+uses the same keys that pictor uses. For example `sim[n].ex` in the `TristanSim` class becomes `sim[n].Ex` in the `PictorSim` class, and `sim[n].xi` becomes `sim[n].x[sim[n].flv==1]`.
