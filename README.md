@@ -11,8 +11,11 @@ Currently assume every job has roughly the same computational cost when doing lo
 
 
 ## TristanSim class
-An object that makes it easy to access all your tristan data as attributes of an object. e.g., any value in the `i`th output step can be accessed as sim[i].ex for example. Documentation [here](https://pcrumley.github.io/tristanUtils/tristanSim.html)
+An Object Relational Mapping (ORM) that makes it easy to access all your tristan data as attributes of an object. e.g., any value in the `i`th output step can be accessed as sim[i].ex for example. Documentation [here](https://pcrumley.github.io/tristanUtils/tristanSim.html)
+
 Consider switching the trackedLecs/trackedIons objects into a pandas dataframe
+
+Needs to build faster (takes 10 seconds to open a sim that is like 100 outputfiles.)
 
 ## helperFuncs
 Easy way to make matplotlib plots. I have phase diagrams, 2D averages, and 1D hist and 1d averages implemented. Documentation  [here](https://pcrumley.github.io/tristanUtils/helperFunc.html). Note: documentation is incomplete.
