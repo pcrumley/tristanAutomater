@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.colors as colors
-import sys
-sys.path.insert(0, './src/')
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),'src/'))
 from hist_helpers import *
 
 def hist1D(x, range=None, bins=100, weights=None, xscale=None, yscale=None, ax=None, **kwargs):

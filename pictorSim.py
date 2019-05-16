@@ -19,15 +19,15 @@ class cachedProperty(object):
         value = obj.__dict__[self.func.__name__] = self.func(obj)
         return value
 
-class TristanSim(object):
+class PictorSim(object):
     def __init__(self, dirpath=None, xtraStride = 1):
         self._trackKeys = ['t', 'x', 'y', 'u', 'v', 'w', 'gamma', 'bx', 'by', 'bz', 'ex', 'ey', 'ez']
-        self._outputFileNames = ['flds.tot.*', 'prtl.tot.*', 'spect.*', 'param.*']
-        self._outputFileKey = [key.split('.')[0] for key in self._outputFileNames]
+        self._outputFileNames = ['fld_*', 'prtl_*']
+        self._outputFileKey = [key.split('_')[0] for key in self._outputFileNames]
         self._outputFileRegEx = [re.compile(elm) for elm in self._outputFileNames]
         self._outputFileH5Keys = []
         self._pathDict = {}
-        self._collisionFixers = {'time': 'param', 'dens': 'flds'}
+        self._collisionFixers = {}
         self.dir = str(dirpath)
         self.getFileNums()
         self.xtraStride = xtraStride
@@ -38,8 +38,8 @@ class TristanSim(object):
         if len(self) != 0:
             for fname in self._outputFileNames:
                 tmpStr = ''
-                for elm in fname.split('.')[:-1]:
-                    tmpStr += elm +'.'
+                for elm in fname.split('_')[:-1]:
+                    tmpStr += elm +'_'
                 tmpStr += self._fnum[0]
                 with h5py.File(os.path.join(self.dir, tmpStr), 'r') as f:
                     self._outputFileH5Keys.append([key for key in f.keys()])
@@ -70,15 +70,15 @@ class TristanSim(object):
                 for i in range(len(self._pathDict[key])):
                     elm = self._pathDict[key][i]
                     try:
-                        int(elm.split('.')[-1])
+                        int(elm.split('_')[-1])
                     except ValueError:
-                        if elm.split('.')[-1] == '***':
+                        if elm.split('_')[-1] == '***':
                             hasStar += 1
                         self._pathDict[key].remove(elm)
             ### GET THE NUMBERS THAT HAVE ALL SET OF FILES:
-            allThere = set(elm.split('.')[-1] for elm in self._pathDict[self._outputFileKey[0]])
+            allThere = set(elm.split('_')[-1] for elm in self._pathDict[self._outputFileKey[0]])
             for key in self._pathDict.keys():
-                allThere &= set(elm.split('.')[-1] for elm in self._pathDict[key])
+                allThere &= set(elm.split('_')[-1] for elm in self._pathDict[key])
             allThere = list(sorted(allThere, key = lambda x: int(x)))
             if hasStar == len(self._pathDict.keys()):
                 allThere.append('***')
@@ -136,8 +136,8 @@ class OutputPoint(ObjectMapper):
         for key, fname, h5KeyList in zip(sim._outputFileKey, sim._outputFileNames, sim._outputFileH5Keys):
             self.__myKeys.append(key)
             tmpStr = ''
-            for elm in fname.split('.')[:-1]:
-                tmpStr += elm +'.'
+            for elm in fname.split('_')[:-1]:
+                tmpStr += elm +'_'
             tmpStr += n
             setattr(self, '_'+key, h5Wrapper(os.path.join(sim.dir, tmpStr), h5KeyList))
 
@@ -174,11 +174,3 @@ class h5Wrapper(object):
     def reload(self):
         for key in self.__h5Keys:
             setattr(self, key, None)
-
-
-if __name__=='__main__':
-    import time
-    import matplotlib.pyplot as plt
-    mySim = TristanSim('~/tig/RelTracking/StampedeRun/output')
-    #plt.imshow(mySim[0].ex[0,:,:])
-    #plt.show()
