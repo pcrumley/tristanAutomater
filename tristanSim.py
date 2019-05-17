@@ -89,10 +89,18 @@ class TristanSim(object):
 
     @cachedProperty
     def trackedLecs(self):
-        return TrackedDatabase(self, 'lecs', keys = self._trackKeys)
+        return TrackedDatabase(self, 'lecs', keys = self.trackKeys)
     @cachedProperty
     def trackedIons(self):
-        return TrackedDatabase(self, 'ions', keys = self._trackKeys)
+        return TrackedDatabase(self, 'ions', keys = self.trackKeys)
+    @property
+    def trackKeys(self): 
+        return self._trackKeys 
+          
+    # setting the values     
+    @trackKeys.setter 
+    def trackKeys(self, trackKeys): 
+        self._trackKeys = trackKeys
 
     def __len__(self):
         #return np.sum(self._mask)
