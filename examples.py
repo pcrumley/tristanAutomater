@@ -185,3 +185,4 @@ avg2D(myRun[0].xe, myRun[0].ye, myRun[0].gammae-1, cnorm = 'log', bins = [100,50
 plt.xlabel('$x_e$')
 plt.ylabel('$y_e$')
 plt.show()
+
