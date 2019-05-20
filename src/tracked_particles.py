@@ -81,7 +81,8 @@ class TrackedDatabase(object):
 class TrackedPrtl(object):
     def __init__(self, database, num):
         self.t = database._t[database.breaks[num]:database.breaks[num+1]]
-        sortArg = np.argsort(self.t)
+        self.tag = database.tags[num]
+        #sortArg = np.argsort(self.t)
         #self.t= self.t[sortArg]
         for key in database.keys:
             setattr(self, key, (getattr(database, '_'+key)[database.breaks[num]:database.breaks[num+1]]))#[sortArg])
