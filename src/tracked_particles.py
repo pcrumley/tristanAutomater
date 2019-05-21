@@ -49,7 +49,7 @@ class TrackedDatabase(object):
                         self.tags = np.append(self.tags, tmpTags[inTagArr])
                         self._t = np.append(self._t,np.ones(np.sum(inTagArr))*int(tfile.split('.')[-1])*sim[0].c/sim[0].c_omp)
                         for elm in self.keys:
-                            setattr(self, '_'+elm, np.append(getattr(self,'_'+elm),f[elm][:][inTagArr))
+                            setattr(self, '_'+elm, np.append(getattr(self,'_'+elm),f[elm][:][inTagArr]))
             ### collapse the tags and get the breaks
 
 
