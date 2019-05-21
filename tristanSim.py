@@ -33,6 +33,8 @@ class TristanSim(object):
         self.xtraStride = xtraStride
         self._h5Key2FileDict = {}
         self._fnum = self.getFileNums()
+        self._trackStart = None
+        self._trackStop = None
         ### open first file and get all the keys:
 
         if len(self) != 0:
@@ -89,10 +91,10 @@ class TristanSim(object):
 
     @cachedProperty
     def trackedLecs(self):
-        return TrackedDatabase(self, 'lecs', keys = self.trackKeys)
+        return TrackedDatabase(self, 'lecs', start = self.trackStart, stop=self.trackStop, keys = self.trackKeys)
     @cachedProperty
     def trackedIons(self):
-        return TrackedDatabase(self, 'ions', keys = self.trackKeys)
+        return TrackedDatabase(self, 'ions', start = self.trackStart, stop=self.trackStop, keys = self.trackKeys)
     @property
     def trackKeys(self): 
         return self._trackKeys 
@@ -101,6 +103,24 @@ class TristanSim(object):
     @trackKeys.setter 
     def trackKeys(self, trackKeys): 
         self._trackKeys = trackKeys
+
+    @property
+    def trackStart(self): 
+        return self._trackStart
+          
+    # setting the values     
+    @trackStart.setter 
+    def trackStart(self, val):
+        self._trackStart = val
+
+    @property
+    def trackStop(self): 
+        return self._trackStop
+
+    # setting the values     
+    @trackStop.setter 
+    def trackStop(self, val):
+        self._trackStop = val
 
     def __len__(self):
         #return np.sum(self._mask)

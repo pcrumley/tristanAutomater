@@ -3,7 +3,7 @@ import os, re
 import numpy as np
 
 class TrackedDatabase(object):
-    def __init__(self, sim, species, start = None, stop = None, keys=['x', 'y', 'u', 'v', 'w', 'gamma', 'bx', 'by', 'bz', 'ex', 'ey', 'ez']):
+    def __init__(self, sim, species, start = None, stop = None, tagArr = None, keys=['x', 'y', 'u', 'v', 'w', 'gamma', 'bx', 'by', 'bz', 'ex', 'ey', 'ez']):
 
         ### When the tracked database is initialized it creates the database
         #
@@ -18,22 +18,41 @@ class TrackedDatabase(object):
         for key in self.keys:
             setattr(self, '_'+ key, np.array([], dtype='f8'))
 
+
         if os.path.exists(outdir):
             tlist = sorted(filter(lambda x: x.split('.')[0] =='testprt',os.listdir(outdir)))
             tlist = list(tlist)[start:stop]
+
             # UPDATING ALGORITHM SO ONLY READS ONCE
-            for tfile in tlist:
-                with h5py.File(os.path.join(outdir,tfile) ,'r') as f:
-                    tmpTags = np.empty(len(f['ind']), dtype = 'int64')
-                    with f['ind'].astype('int64'):
-                        tmpTags[:] = np.abs(f['ind'][:])
-                    with f['proc'].astype('int64'):
-                        tmpTags[:] += np.abs(f['proc'][:]*2147483648)
-                    self.tags = np.append(self.tags, tmpTags)
-                    self._t = np.append(self._t,np.ones(len(f['ind']))*int(tfile.split('.')[-1])*sim[0].c/sim[0].c_omp)
-                    for elm in self.keys:
-                        setattr(self, '_'+elm, np.append(getattr(self,'_'+elm),f[elm][:]))
+            if tagArr is None:
+                for tfile in tlist:
+                    with h5py.File(os.path.join(outdir,tfile) ,'r') as f:
+                        tmpTags = np.empty(len(f['ind']), dtype = 'int64')
+                        with f['ind'].astype('int64'):
+                            tmpTags[:] = np.abs(f['ind'][:])
+                        with f['proc'].astype('int64'):
+                            tmpTags[:] += np.abs(f['proc'][:]*2147483648)
+                        self.tags = np.append(self.tags, tmpTags)
+                        self._t = np.append(self._t,np.ones(len(f['ind']))*int(tfile.split('.')[-1])*sim[0].c/sim[0].c_omp)
+                        for elm in self.keys:
+                            setattr(self, '_'+elm, np.append(getattr(self,'_'+elm),f[elm][:]))
+            else:
+                tagArr =np.sort(tagArr)
+                for tfile in tlist:
+                    with h5py.File(os.path.join(outdir,tfile) ,'r') as f:
+                        tmpTags = np.empty(len(f['ind']), dtype = 'int64')
+                        with f['ind'].astype('int64'):
+                            tmpTags[:] = np.abs(f['ind'][:])
+                        with f['proc'].astype('int64'):
+                            tmpTags[:] += np.abs(f['proc'][:]*2147483648)
+                        inTagArr =np.take(tagArr, np.searchsorted(tagArr, tmpTags), mode = 'wrap') == tmpTags
+                        self.tags = np.append(self.tags, tmpTags[inTagArr])
+                        self._t = np.append(self._t,np.ones(np.sum(inTagArr))*int(tfile.split('.')[-1])*sim[0].c/sim[0].c_omp)
+                        for elm in self.keys:
+                            setattr(self, '_'+elm, np.append(getattr(self,'_'+elm),f[elm][:][inTagArr))
             ### collapse the tags and get the breaks
+
+
 
             sortArgs = np.lexsort((self._t, self.tags))
             self.tags, pcounts = np.unique(self.tags, return_counts=True)
