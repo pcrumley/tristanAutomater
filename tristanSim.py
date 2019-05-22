@@ -39,6 +39,7 @@ class TristanSim(object):
         self._fnum = self.getFileNums()
         self._trackStart = None
         self._trackStop = None
+        self.dd = {}
         ### open first file and get all the keys:
 
         if len(self) != 0:
@@ -141,6 +142,18 @@ class TristanSim(object):
 
     def __getitem__(self, val):
         return self._output[val]
+
+    def saveDD(self):
+        # We assume that all things are all npy arrays
+        ddPath = os.path.join(self.dir, '.dd.npz')
+        np.savez(ddPath, **self.dd)
+    def loadDD(self):
+        # We assume that all things are all npy arrays
+        ddPath = os.path.join(self.dir, '.dd.npz')
+        if os.path.exists(ddPath):
+            with np.load(ddPath) as npzFile:
+                for arr in npzFile.files:
+                    self.dd[arr] = npzFile[arr]
 
     def loadAllFields(self):
         for out in self:
