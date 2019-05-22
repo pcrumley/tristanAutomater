@@ -25,10 +25,14 @@ class TristanSim(object):
         self._outputFileNames = ['flds.tot.*', 'prtl.tot.*', 'spect.*', 'param.*']
         self._outputFileKey = [key.split('.')[0] for key in self._outputFileNames]
         self._outputFileRegEx = [re.compile(elm) for elm in self._outputFileNames]
+  
         self._outputFileH5Keys = []
         self._pathDict = {}
         self._collisionFixers = {'time': 'param', 'dens': 'flds'}
         self.dir = str(dirpath)
+
+        self._name = os.path.split(self.dir)[0]
+        self._name = os.path.split(self.dir)[-1]
         self.getFileNums()
         self.xtraStride = xtraStride
         self._h5Key2FileDict = {}
@@ -103,6 +107,15 @@ class TristanSim(object):
     @trackKeys.setter 
     def trackKeys(self, trackKeys): 
         self._trackKeys = trackKeys
+
+    @property
+    def name(self): 
+        return self._name 
+          
+    # setting the values     
+    @name.setter 
+    def name(self, myName): 
+        self._name = myName
 
     @property
     def trackStart(self): 
