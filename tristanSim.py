@@ -187,17 +187,37 @@ class OutputPoint(ObjectMapper):
             return getattr(getattr(self,'_'+self._sim._h5Key2FileDict[name]), name)
         else:
             return object.__getattribute__(self, name)
+    @cachedProperty
+    def tagi(self):
+        tmpTags = np.empty(len(self.indi), dtype = 'int64')
+        tmpTags[:] = np.abs(self.indi).astype('int64')[:]
+        tmpTags[:] += np.abs(self.proci).astype('int64')[:]*2147483648
+        return tmpTags
 
-    def reload(self):
+    @cachedProperty
+    def tage(self):
+        tmpTags = np.empty(len(self.inde), dtype = 'int64')
+        tmpTags[:] = np.abs(self.inde).astype('int64')[:]
+        tmpTags[:] += np.abs(self.proce).astype('int64')[:]*2147483648
+        return tmpTags
+
+    def clear(self):
         for key in self.__myKeys:
-            getattr(self, key).reload()
-
+            getattr(self, f'_{key}').clear()
+        try:
+            del self.tagi
+        except AttributeError:
+            pass
+        try:
+            del self.tage
+        except AttributeError:
+            pass
 
 class h5Wrapper(object):
     def __init__(self, fname, h5Keys):
         self._fname = fname
         self.__h5Keys = h5Keys
-        self.reload()
+        self.clear()
 
     def __getattribute__(self, name):
         if object.__getattribute__(self, name) is None:
@@ -212,7 +232,7 @@ class h5Wrapper(object):
     def keys(self):
         return self.__h5Keys
 
-    def reload(self):
+    def clear(self):
         for key in self.__h5Keys:
             setattr(self, key, None)
 
