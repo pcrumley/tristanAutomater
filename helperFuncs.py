@@ -47,10 +47,10 @@ def hist2D(x, y, xrange=None, yrange=None,  bins=[200,200],
     Histogram takes a value and plots a line on the given ax. If ax is none,
     plt.gca() is used. All **kwargs are passed to plot() so they should be something you can send there
     """
-    xvalmin = x.min() if xrange is None else range[0]
-    xvalmax = x.max() if xrange is None else range[1]
-    yvalmin = y.min() if yrange is None else range[0]
-    yvalmax = y.max() if yrange is None else range[1]
+    xvalmin = x.min() if xrange is None else xrange[0]
+    xvalmax = x.max() if xrange is None else xrange[1]
+    yvalmin = y.min() if yrange is None else yrange[0]
+    yvalmax = y.max() if yrange is None else yrange[1]
 
     if weights is None:
         hist = Fast2DHist(y, x, yvalmin, yvalmax, int(bins[1]), xvalmin, xvalmax, int(bins[0]))
@@ -117,10 +117,10 @@ def avg2D(x, y, z, xrange=None, yrange=None,  bins=[200,200],
     """
     Take the z average in x & y bin
     """
-    xvalmin = x.min() if xrange is None else range[0]
-    xvalmax = x.max() if xrange is None else range[1]
-    yvalmin = y.min() if yrange is None else range[0]
-    yvalmax = y.max() if yrange is None else range[1]
+    xvalmin = x.min() if xrange is None else xrange[0]
+    xvalmax = x.max() if xrange is None else xrange[1]
+    yvalmin = y.min() if yrange is None else yrange[0]
+    yvalmax = y.max() if yrange is None else yrange[1]
 
     if weights is None:
         hist = Calc2DMoments(y, x, z, yvalmin, yvalmax, int(bins[1]), xvalmin, xvalmax, int(bins[0]))
