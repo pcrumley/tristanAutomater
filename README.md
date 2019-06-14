@@ -15,7 +15,7 @@ An Object Relational Mapping (ORM) that makes it easy to access all your tristan
 
 Consider switching the trackedLecs/trackedIons objects into a pandas dataframe
 
-Needs to build faster (takes 10 seconds to open a sim that is like 100 outputfiles.)
+Needs to build faster (takes 10 seconds to open a sim that is like 100 outputfiles.) => This is fixed now!
 
 ## helperFuncs
 Easy way to make matplotlib plots. I have phase diagrams, 2D averages, and 1D hist and 1d averages implemented. Documentation  [here](https://pcrumley.github.io/tristanUtils/helperFunc.html). Note: documentation is incomplete.
