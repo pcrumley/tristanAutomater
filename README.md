@@ -11,7 +11,7 @@ Currently assume every job has roughly the same computational cost when doing lo
 
 
 ## TristanSim class
-An Object Relational Mapping (ORM) that makes it easy to access all your tristan data as attributes of an object. e.g., any value in the `i`th output step can be accessed as sim[i].ex for example. Documentation [here](https://pcrumley.github.io/tristanUtils/tristanSim.html)
+An Object Relational Mapping (ORM) that makes it easy to lazily load all your tristan data as attributes of an object. e.g., any value in the `i`th output step can be accessed as sim[i].ex for example. Documentation [here](https://pcrumley.github.io/tristanUtils/tristanSim.html)
 
 Consider switching the trackedLecs/trackedIons objects into a pandas dataframe
 
