@@ -113,7 +113,7 @@ if __name__ == "__main__":
 
     texture = np.random.rand(size,size).astype(np.float64)
 
-    plt.bone()
+
     frame=0
     kernellen=31
     kernel = np.sin(np.arange(kernellen)*np.pi/kernellen)
@@ -127,3 +127,50 @@ if __name__ == "__main__":
     plt.gcf().set_size_inches((size/float(dpi),size/float(dpi)))
     plt.show()
     #plt.savefig("flow-image.png",dpi=dpi)
+
+    import sys
+    sys.path.append('/perseus/scratch/gpfs/pcrumley/tristanAutomater/')
+    sys.path.append('/perseus/scratch/gpfs/pcrumley/tristanAutomater/src')
+    from tristanSim import TristanSim
+    from tracked_particles import TrackedDatabase
+    from matplotlib.colors import Normalize
+
+    homeDir = '/home/pcrumley/tig/Projects/TransRelShocks/Runs/gamBeta3ParaWTracking/output'
+    #homeDir = '/perseus/scratch/gpfs/pcrumley/ShockWTrackingStamepde/output'
+    s=TristanSim(homeDir)
+
+    #bx = s[-1].bx[0,:,1600:6000]
+    #by = s[-1].by[0,:,1600:6000]
+    #bz = s[-1].bz[0,:,1600:6000]
+    #dens = s[-1].dens[0,:,1600:6000]
+    bx = s[-1].bx[0,:,5*1105:-3000]
+    by = s[-1].by[0,:,5*1105:-3000]
+    dens = s[-1].dens[0,:,5*1105:-3000]
+    #bz[bz<-.2]=-0.5
+    #bz[bz>33]=33
+    #bz = np.sqrt(np.abs(bz))*np.sign(bz)
+    
+    
+    texture = np.random.rand(by.shape[0],by.shape[1]).astype(np.float64)
+    #texture *= bz
+    kernellen=51
+    kernel = np.sin(np.arange(kernellen)*np.pi/kernellen)
+    kernel = kernel.astype(np.float64)
+
+    weights = line_integral_convolution(bx, by, texture, kernel)
+    alphas = Normalize(None, None, clip=True)(np.sign(weights-np.average(weights))*np.sqrt(np.abs(weights-np.average(weights))))
+    alphas[alphas<.6] = .15
+    alphas[alphas>.75] = .9
+
+    bw = plt.cm.binary
+    colors = Normalize(None, None)(np.sign(weights-np.average(weights))*np.abs(weights-np.average(weights))**.33  ) 
+    colors = bw(colors)
+    colors[..., -1] = alphas
+    #print(np.min(image), np.max(image))
+    #image[image<0.5]=np.nan
+    #plt.imshow(bz)
+    plt.imshow(dens, clim=(0,5*8))
+    plt.imshow(colors)#, cmap='binary', alpha=.75)
+    
+    plt.show()
+    
