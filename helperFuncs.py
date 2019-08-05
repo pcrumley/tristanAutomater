@@ -219,7 +219,7 @@ def tristanSpect(o, species='lec', spectType = 'Energy', normed = False, restSpe
     if species == 'lec':
         spectKey += 'e'
     else: 
-        spectKey += 'i'
+        spectKey += 'p'
     if restSpect:
         spectKey += 'rest'
     spec = np.copy(getattr(o, spectKey))
