@@ -3,7 +3,7 @@ import os, re
 import numpy as np
 
 class TrackedDatabase(object):
-    def __init__(self, sim, species, start = None, stop = None, tagArr = None, keys=['x', 'y', 'u', 'v', 'w', 'gamma', 'bx', 'by', 'bz', 'ex', 'ey', 'ez']):
+    def __init__(self, sim, species, start = None, stop = None, tagArr = None, keys=['x', 'y', 'u', 'v', 'w', 'gamma', 'bx', 'by', 'bz', 'ex', 'ey', 'ez', 't']):
 
         ### When the tracked database is initialized it creates the database
         #
@@ -24,8 +24,12 @@ class TrackedDatabase(object):
             tlist = list(tlist)[start:stop]
 
             # UPDATING ALGORITHM SO ONLY READS ONCE
+            k = 0
             if tagArr is None:
                 for tfile in tlist:
+                    if k% 40 == 0:
+                        print(tfile)
+                    k += 1
                     with h5py.File(os.path.join(outdir,tfile) ,'r') as f:
                         tmpTags = np.empty(len(f['ind']), dtype = 'int64')
                         with f['ind'].astype('int64'):
