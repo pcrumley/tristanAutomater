@@ -27,7 +27,7 @@ class PictorSim(object):
 
         self._outputFileH5Keys = []
         self._pathDict = {}
-        self._collisionFixers = {'time': 'param', 'dens': 'flds'}
+        self._collisionFixers = {}
         self.dir = str(dirpath)
 
         self._name = os.path.split(self.dir)[0]
@@ -69,7 +69,18 @@ class PictorSim(object):
     def getFileNums(self):
         try:
             # Create a dictionary of all the paths to the files
-            hasStar = 0
+            tmp1 = []
+            tmp2 = []
+            tmp3 = []
+            for name, key, regEx in zip(self._outputFileNames, self._outputFileKey, self._outputFileRegEx):
+                if len(list(filter(regEx.match, os.listdir(self.dir)))) != 0:
+                    tmp1.append(name)
+                    tmp2.append(key)
+                    tmp3.append(regEx)
+            self._outputFileNames = tmp1
+            self._outputFileKey = tmp2
+            self._outputFileRegEx = tmp3
+
             for key, regEx in zip(self._outputFileKey, self._outputFileRegEx):
                 self._pathDict[key] = [item for item in filter(regEx.match, os.listdir(self.dir))]
                 self._pathDict[key].sort()
@@ -78,8 +89,6 @@ class PictorSim(object):
                     try:
                         int(elm.split('_')[-1])
                     except ValueError:
-                        if elm.split('_')[-1] == '***':
-                            hasStar += 1
                         self._pathDict[key].remove(elm)
             ### GET THE NUMBERS THAT HAVE ALL SET OF FILES:
             allThere = set(elm.split('_')[-1] for elm in self._pathDict[self._outputFileKey[0]])
