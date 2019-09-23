@@ -42,7 +42,7 @@ def hist1D(x, range=None, bins=100, weights=None, xscale=None, yscale=None, ax=N
 
 def hist2D(x, y, xrange=None, yrange=None,  bins=[200,200],
     weights=None, cnorm = 'log', normhist=True, colorbar=True, clabel='',
-     ax=None, mask_empty=True, aspect='auto', origin='lower', **kwargs):
+     ax=None, cax = None, mask_empty=True, aspect='auto', origin='lower', **kwargs):
     """
     Histogram takes a value and plots a line on the given ax. If ax is none,
     plt.gca() is used. All **kwargs are passed to plot() so they should be something you can send there
@@ -74,7 +74,10 @@ def hist2D(x, y, xrange=None, yrange=None,  bins=[200,200],
     if cnorm == 'log':
         im.set_norm(colors.LogNorm(vmin =im.get_clim()[0], vmax=im.get_clim()[1]))
     if colorbar:
-        plt.colorbar(im, ax=ax, label = clabel)
+        if cax = None:
+            plt.colorbar(im, ax=ax, label = clabel)
+        else:
+            plt.colorbar(im, cax=cax, label = clabel)
     return im
 
 def avg1D(x, y, range=None, bins=100, weights=None, xscale=None, yscale=None, ax=None, **kwargs):
@@ -113,7 +116,7 @@ def avg1D(x, y, range=None, bins=100, weights=None, xscale=None, yscale=None, ax
 
 def avg2D(x, y, z, xrange=None, yrange=None,  bins=[200,200],
     weights=None, cnorm = '', colorbar=True, clabel='',
-     ax=None, aspect='auto', origin='lower', **kwargs):
+     ax=None, cax = None, aspect='auto', origin='lower', **kwargs):
     """
     Take the z average in x & y bin
     """
@@ -141,7 +144,10 @@ def avg2D(x, y, z, xrange=None, yrange=None,  bins=[200,200],
     if cnorm == 'log':
         im.set_norm(colors.LogNorm(vmin =im.get_clim()[0], vmax=im.get_clim()[1]))
     if colorbar:
-        plt.colorbar(im, ax=ax, label = clabel)
+        if cax = None:
+            plt.colorbar(im, ax=ax, label = clabel)
+        else:
+            plt.colorbar(im, cax=cax, label = clabel)
     return im
 
 class PowerNorm(colors.Normalize):
@@ -213,12 +219,12 @@ def tristanSpect(o, species='lec', spectType = 'Energy', normed = False, restSpe
     istep = o.istep
     xsl = o.xsl/c_omp
     gamma = o.gamma
-    #massRatio = o.mi/o.me 
+    #massRatio = o.mi/o.me
     momentum=np.sqrt((gamma+1)**2-1.)
     spectKey = 'spec'
     if species == 'lec':
         spectKey += 'e'
-    else: 
+    else:
         spectKey += 'p'
     if restSpect:
         spectKey += 'rest'
