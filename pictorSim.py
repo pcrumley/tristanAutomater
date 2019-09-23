@@ -67,7 +67,9 @@ class PictorSim(object):
             for key, regEx in zip(self._outputFileKey, self._outputFileRegEx):
                 self._pathDict[key] = [item for item in filter(regEx.match, os.listdir(self.dir))]
                 self._pathDict[key].sort()
-                for i in range(len(self._pathDict[key])):
+                print(self._pathDict[key])
+                for i in range(len(self._pathDict[key])-1):
+                    #print(i)
                     elm = self._pathDict[key][i]
                     try:
                         int(elm.split('_')[-1])

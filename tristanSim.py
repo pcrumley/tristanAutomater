@@ -183,6 +183,9 @@ class ObjectMapper(object):
     def setKeys(cls, mapdict):
         cls.__h5Keys = [key for key in mapdict.keys()]
     @classmethod
+    def mustHave(cls, name):
+        return name in ['istep', 'stride', 'mi', 'me', 'c_omp', 'time', 'ppc0', 'qi', 'sigma', 'dens', 'xe']
+    @classmethod
     def getKeys(cls):
         return cls.__h5Keys
 
@@ -194,7 +197,6 @@ class OutputPoint(ObjectMapper):
         self._sim = sim
         self.__myKeys = []
         self.fnum = n
-
         for key, fname, h5KeyList in zip(sim._outputFileKey, sim._outputFileNames, sim._outputFileH5Keys):
             self.__myKeys.append(key)
             tmpStr = ''
@@ -206,6 +208,12 @@ class OutputPoint(ObjectMapper):
     def __getattribute__(self, name):
         if name in super().getKeys():
             return getattr(getattr(self,'_'+self._sim._h5Key2FileDict[name]), name)
+        elif super().mustHave(name):
+            if name == 'dens':
+                return np.ones((25,25,25))
+            if name == 'xe':
+                return np.arange(10)
+            return 1.0
         else:
             return object.__getattribute__(self, name)
     @cachedProperty
