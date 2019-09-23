@@ -74,7 +74,7 @@ def hist2D(x, y, xrange=None, yrange=None,  bins=[200,200],
     if cnorm == 'log':
         im.set_norm(colors.LogNorm(vmin =im.get_clim()[0], vmax=im.get_clim()[1]))
     if colorbar:
-        if cax = None:
+        if cax == None:
             plt.colorbar(im, ax=ax, label = clabel)
         else:
             plt.colorbar(im, cax=cax, label = clabel)
@@ -144,7 +144,7 @@ def avg2D(x, y, z, xrange=None, yrange=None,  bins=[200,200],
     if cnorm == 'log':
         im.set_norm(colors.LogNorm(vmin =im.get_clim()[0], vmax=im.get_clim()[1]))
     if colorbar:
-        if cax = None:
+        if cax == None:
             plt.colorbar(im, ax=ax, label = clabel)
         else:
             plt.colorbar(im, cax=cax, label = clabel)
