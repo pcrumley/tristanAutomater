@@ -27,7 +27,7 @@ class simulationSearcher(object):
         return returnDictionary
 
     def buildSearchGrid(self,box, **kwargs):
-        '''This is garbage code... I should simplify this.'''
+        '''Takes the cartesian product of all the options.'''
         grid = None
         for key, val in kwargs.items():
             if grid is None:
@@ -35,21 +35,21 @@ class simulationSearcher(object):
             else:
                 grid = itertools.product(grid,val)
                 tmpGrid = []
-        
+
                 for item in grid:
                     try:
                         tmpList =list(item[0])
                         tmpList.append(item[1])
-                    
+
                     except TypeError:
                         tmpList = list(item)
-                        
-                    tmpGrid.append(tmpList)                
+
+                    tmpGrid.append(tmpList)
                 grid = tmpGrid
         #print(grid)
         for pt in grid:
             tmpDict = self.deepCopyDict(self._cfgOpts)
-            
+
             tmpStr = ''
             for key, val in zip(kwargs.keys(), pt):
                 if key not in ['sizex', 'sizey']:
@@ -77,7 +77,7 @@ class simulationSearcher(object):
             ziter = [1] if len(box['z']) == 0 else map(converter, box['z'])
             boxkeys = ['mx0', 'my0', 'mz0']
             boxheaders = [self.__cfgMapper[key] for key in boxkeys]
-            
+
             for boxX in xiter:
                 #print(boxX)
                 for boxY in yiter:
@@ -85,11 +85,12 @@ class simulationSearcher(object):
                         for head, key, val in zip(boxheaders, boxkeys, [boxX, boxY, boxZ]):
                             pt[head][key] = val
                             name += str(key) + '_' + str(val) + '_'
-            self._gridNames[i] = name[:-7] if len(box['z']) == 0 else name[:-1] 
+            self._gridNames[i] = name[:-7] if len(box['z']) == 0 else name[:-1]
+
     def loadInputTemplate(self, input_file):
         '''Converts tristan_input to a python dict'''
         headers = re.compile("\<(.*?)\>")
-    
+
         with open(input_file, 'r') as f:
             inputlist = f.readlines()
         for line in inputlist:
@@ -132,8 +133,8 @@ class simulationSearcher(object):
                 else:
                     pt[head][key] = val
 
-                                      
-            
+
+
     def submitJobs(self, **kwargs):
         #The grid has been build and we are ready to make the directories and input files
         for key, val in kwargs.items():
@@ -167,7 +168,7 @@ class simulationSearcher(object):
                 f.write(f"#SBATCH -t {self._submitOpts['totalTime']}\n")
                 f.write("#SBATCH --mail-type=all\n")
                 f.write(f"#SBATCH --mail-user={self._submitOpts['email']}\n\n")
-                
+
                 for module in self._submitOpts['modules']:
                     f.write('module load {}\n'.format(module))
                 coreCount = 0
@@ -189,7 +190,7 @@ class simulationSearcher(object):
                     j +=1
                 f.write('\n'+ 'wait\n')
             os.system(f'sbatch submit{i}')
-        
+
     def writeInputFile(self,cfgDict, outfile='test.txt'):
         with open(outfile, 'w+') as f:
             for key, val in cfgDict.items():
@@ -199,6 +200,7 @@ class simulationSearcher(object):
                 f.write('\n')
     def setRootDir(self, dirname):
         self._rootDir = dirname
+
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
@@ -238,6 +240,5 @@ if __name__ == '__main__':
     runBuilder.setRootDir(config['ROOT_DIRECTORY'])
     runBuilder.loadInputTemplate(config['BASE_INPUT_FILE'])
     runBuilder.buildSearchGrid(box=config['box'], **config['paramOpts'])
-    runBuilder.setOutputOpts(**config['outputOpts']) 
+    runBuilder.setOutputOpts(**config['outputOpts'])
     runBuilder.submitJobs(**config['submitOpts'])
-

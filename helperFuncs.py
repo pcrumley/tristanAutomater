@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.colors as colors
 import sys, os
+from scipy.interpolate import griddata
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),'src/'))
 from hist_helpers import *
 
@@ -114,9 +115,11 @@ def avg1D(x, y, range=None, bins=100, weights=None, xscale=None, yscale=None, ax
     # return an Line2D object like matplotlib.plot does
     return ax.plot(*stepifyMoment(binEdges, hist), **kwargs)
 
+
 def avg2D(x, y, z, xrange=None, yrange=None,  bins=[200,200],
     weights=None, cnorm = '', colorbar=True, clabel='',
-     ax=None, cax = None, aspect='auto', origin='lower', **kwargs):
+    ax=None, cax = None, aspect='auto', origin='lower',
+    interpolate=False, **kwargs):
     """
     Take the z average in x & y bin
     """
@@ -131,6 +134,23 @@ def avg2D(x, y, z, xrange=None, yrange=None,  bins=[200,200],
         #calculate unweighed histogram
         hist = Calc2DWeightedMoments(y, x, z, weights, yvalmin, yvalmax, int(bins[1]), xvalmin, xvalmax, int(bins[0]))
 
+    if interpolate:
+        xbins = 0.5*(
+                    np.linspace(xvalmin, xvalmax, num =bins[0]+1)[0:-1]
+                + np.linspace(xvalmin, xvalmax, num=bins[0]+1)[1:]
+                )
+        ybins = 0.5*(
+                    np.linspace(yvalmin, yvalmax, num =bins[1]+1)[0:-1]
+                + np.linspace(yvalmin, yvalmax, num=bins[1]+1)[1:]
+                )
+        xv, yv = np.meshgrid(xbins, ybins)
+        hist = hist.ravel()
+        xv = xv.ravel()
+        yv = yv.ravel()
+        bad_vals = np.isnan(hist)
+        hist = griddata((xv[~bad_vals], yv[~bad_vals]), hist[~bad_vals], (xv, yv))
+        hist = hist.reshape((bins[1], bins[0]))
+
     ####
     #
     # Now we have the histogram, we need to turn it into an image
@@ -140,7 +160,7 @@ def avg2D(x, y, z, xrange=None, yrange=None,  bins=[200,200],
     if ax is None:
         ax = plt.gca()
     im = ax.imshow(hist, extent = (xvalmin, xvalmax, yvalmin, yvalmax), origin=origin,
-        aspect=aspect, **kwargs)
+              aspect=aspect, **kwargs)
     if cnorm == 'log':
         im.set_norm(colors.LogNorm(vmin =im.get_clim()[0], vmax=im.get_clim()[1]))
     if colorbar:
@@ -150,6 +170,7 @@ def avg2D(x, y, z, xrange=None, yrange=None,  bins=[200,200],
             plt.colorbar(im, cax=cax, label = clabel)
     return im
 
+
 class PowerNorm(colors.Normalize):
 
     ''' Custom color Norm: This one normalizes the negative data differently
@@ -158,7 +179,7 @@ class PowerNorm(colors.Normalize):
     true, then for diverging cmaps, the entire cmap is used, otherwise it only
     uses the amount so that -b and b are the same distance from the midpoint.'''
 
-    def __init__(self, gamma = 1.0, vmin=None, vmax=None, clip=False, div_cmap = True, midpoint = 0.0, stretch_colors = True):
+    def __init__(self, gamma=1.0, vmin=None, vmax=None, clip=False, div_cmap=True, midpoint = 0.0, stretch_colors= True):
         colors.Normalize.__init__(self, vmin, vmax, clip)
         self.gamma = gamma
         self.div_cmap = div_cmap
@@ -169,12 +190,15 @@ class PowerNorm(colors.Normalize):
         # I'm ignoring masked values and all kinds of edge cases to make a
         # simple example...
         # First see if there is a sign change:
-        ans = PowerNormFunc(value, gamma = self.gamma, vmin=self.vmin, vmax=self.vmax, div_cmap = self.div_cmap,  midpoint = self.midpoint, stretch_colors = self.stretch_colors)
+
+        ans = PowerNormFunc(value, gamma=self.gamma, vmin=self.vmin,
+                vmax=self.vmax, div_cmap=self.div_cmap,
+                midpoint=self.midpoint, stretch_colors = self.stretch_colors)
         if type(value) == np.ma.core.MaskedArray:
             ans.mask = value.mask
         return ans
 
-def PowerNormFunc(data, gamma = 1.0, vmin=None, vmax=None, div_cmap = True,  midpoint = 0.0, stretch_colors = True):
+def PowerNormFunc(data, gamma=1.0, vmin=None, vmax=None, div_cmap=True,  midpoint=0.0, stretch_colors=True):
 
     ''' Helper function for the PowerNorm  The main idea is that it norms data
     using np.sign(data-midpoint)*np.abs(data-midpoint)**gamma.  If
@@ -188,7 +212,7 @@ def PowerNormFunc(data, gamma = 1.0, vmin=None, vmax=None, div_cmap = True,  mid
     right_clip = 1.0
     if not stretch_colors:
         if np.sign(vmin) < 0 and np.sign(vmax) > 0:
-            v_absmax = max(np.abs(vmin),np.abs(vmax))
+            v_absmax = max(np.abs(vmin), np.abs(vmax))
             left_clip = 0.5*(1 - np.abs(vmin)**gamma/np.abs(v_absmax)**gamma)
             right_clip = 0.5*(1 + np.abs(vmax)**gamma/np.abs(v_absmax)**gamma)
 
@@ -196,7 +220,8 @@ def PowerNormFunc(data, gamma = 1.0, vmin=None, vmax=None, div_cmap = True,  mid
         if np.sign(vmin) != np.sign(vmax) and np.sign(vmin) != 0 and np.sign(vmax) != 0:
             x, y = [np.sign(vmin)*np.abs(vmin)**gamma,
                     0,
-                    np.sign(vmax)*np.abs(vmax)**gamma],[left_clip, 0.5, right_clip]
+                    np.sign(vmax)*np.abs(vmax)**gamma
+                    ], [left_clip, 0.5, right_clip]
         elif  np.sign(vmin) >= 0:
             # The data must be totally positive, extrapolate from midpoint
             x, y = [np.sign(vmin)*np.abs(vmin)**gamma, np.sign(vmax)*np.abs(vmax)**gamma], [0.5, right_clip]
@@ -214,12 +239,13 @@ def PowerNormFunc(data, gamma = 1.0, vmin=None, vmax=None, div_cmap = True,  mid
     return ans
 
 
-def tristanSpect(o, species='lec', spectType = 'Energy', normed = False, restSpect = False, xLeft = -10000, xRight=+100000, ax = None, **kwargs):
+def tristanSpect(o, species='lec', spectType='Energy', normed = False,
+    restSpect=False, xLeft = -10000, xRight=+100000, ax = None, **kwargs):
     c_omp = o.c_omp
     istep = o.istep
     xsl = o.xsl/c_omp
     gamma = o.gamma
-    #massRatio = o.mi/o.me
+    # massRatio = o.mi/o.me
     momentum=np.sqrt((gamma+1)**2-1.)
     spectKey = 'spec'
     if species == 'lec':
@@ -287,6 +313,7 @@ if __name__=='__main__':
 
     xmin = min(mySim[0].gammae.min(),mySim[0].gammai.min())
     xmax = max(mySim[0].gammae.max(),mySim[0].gammai.max())
+
     hist1D(mySim[0].gammae-1, range=(xmin,xmax), bins=200, xscale='log', yscale='log', c='r', label ='lecs')
     hist1D(mySim[0].gammai-1, range=(xmin,xmax), bins=200, xscale='log', yscale='log', c='b', label ='ions')
     plt.xlabel('$\gamma-1$')
@@ -305,10 +332,17 @@ if __name__=='__main__':
     plt.ylabel(r'$\langle \gamma_i-1 \rangle$')
     plt.show()
 
-    avg2D(mySim[0].xe, mySim[0].ye, mySim[0].gammae-1, cnorm = 'log', bins = [100,50], clabel=r'$\langle KE \rangle$')
+    plt.figure()
+    plt.subplot(211)
+    avg2D(mySim[0].xe, mySim[0].ye, mySim[0].gammae-1, cnorm = 'log', bins = [100,50], clabel=r'$\langle KE \rangle$', interpolate=True)
+    plt.xlabel('$x_e$')
+    plt.ylabel('$y_e$')
+    plt.subplot(212)
+    avg2D(mySim[0].xe, mySim[0].ye, mySim[0].gammae-1, cnorm = 'log', bins = [100,50], clabel=r'$\langle KE \rangle$', interpolate=False)
     plt.xlabel('$x_e$')
     plt.ylabel('$y_e$')
     plt.show()
+
 
     tristanSpect(mySim[1])
     plt.show()

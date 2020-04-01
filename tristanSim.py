@@ -1,8 +1,16 @@
-import re, sys, os, h5py
 import numpy as np
+import re
+import sys
+import os
+import h5py
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),'src/'))
+
+sys.path.insert(0, os.path.join(
+    os.path.dirname(
+    os.path.abspath(__file__)),
+    'src/'))
 from tracked_particles import TrackedDatabase
+
 
 class cachedProperty(object):
     """
@@ -49,7 +57,8 @@ class PicSim(object):
                 tmpStr += self._fnum[0]
                 with h5py.File(os.path.join(self.dir, tmpStr), 'r') as f:
                     self._outputFileH5Keys.append([key for key in f.keys()])
-            # Build an key to h5 file dictionary, and a h5 file to key dictionary
+            # Build an key to h5 file dictionary, so we can look up where each key
+            # lives
             self._output = [OutputPoint(self, n=x) for x in self.getFileNums()]
             for fkey in self._outputFileKey:
                 for key in getattr(self[0], '_'+fkey).keys():
